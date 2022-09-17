@@ -1,3 +1,0 @@
-websockets
-async_tkinter_loop
-twitchio

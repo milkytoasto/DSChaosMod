@@ -1,11 +1,12 @@
-import logging
-import websockets
 import asyncio
-from async_tkinter_loop import async_handler, async_mainloop
+import configparser
+import logging
 import tkinter as tk
 import tkinter.scrolledtext as st
 import tkinter.ttk as ttk
-import configparser
+
+import websockets
+from async_tkinter_loop import async_handler, async_mainloop
 from utils.TwitchBot import TwitchBot
 
 config = configparser.ConfigParser()
@@ -22,6 +23,7 @@ COUNTDOWN = VOTING_PERIOD
 TOKEN = config["TWITCH"]["TMI_TOKEN"]
 CHANNEL = config["TWITCH"]["CHANNEL"]
 CLIENTS = set()
+
 
 async def handler(websocket, path):
     debug_logger = logging.getLogger("debug")
@@ -150,8 +152,8 @@ class ServerGUI:
 
         width = 600
         height = 350
-        
-        root.geometry(f'{width}x{height}')
+
+        root.geometry(f"{width}x{height}")
         root.minsize(width, height)
 
         self.root = root
@@ -170,7 +172,7 @@ class ServerGUI:
         self.top_frame.grid(row=0, sticky=tk.W)
 
         self.bottom_frame = tk.Frame(self.root, pady=8, padx=8)
-        self.bottom_frame.grid(row=1, sticky=tk.E+tk.W+tk.N+tk.S)
+        self.bottom_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
     def __initButtons(self):
         self.wsButton = ttk.Button(
