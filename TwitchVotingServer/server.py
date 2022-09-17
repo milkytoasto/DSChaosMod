@@ -147,8 +147,12 @@ class ServerGUI:
         root.title(title)
         root.grid_rowconfigure(1, weight=1)
         root.grid_columnconfigure(0, weight=1)
-        root.geometry("600x350")
-        root.minsize(400, 350)
+
+        width = 600
+        height = 350
+        
+        root.geometry(f'{width}x{height}')
+        root.minsize(width, height)
 
         self.root = root
 
