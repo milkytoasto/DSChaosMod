@@ -6,7 +6,7 @@ import tkinter as tk
 import tkinter.scrolledtext as st
 import tkinter.ttk as ttk
 import configparser
-from TwitchBot import TwitchBot
+from utils.TwitchBot import TwitchBot
 
 config = configparser.ConfigParser()
 config.read("config.ini")
