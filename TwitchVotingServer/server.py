@@ -103,6 +103,7 @@ async def start():
     for p in pending:
         debug_logger.info(f"{len(done)} tasks exited. Cancelling {len(pending)} tasks ")
         p.cancel()
+    debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
 
 async def websocket_server():
