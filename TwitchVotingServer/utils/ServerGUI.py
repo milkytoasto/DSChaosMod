@@ -159,9 +159,10 @@ class ServerGUI:
         text_handler = WidgetLogger(text)
         logger.addHandler(text_handler)
 
-    def initSettingsTab(self, channel="", votingDuration=""):
+    def initSettingsTab(self, channel="", votingDuration="", tmiToken=""):
         self.channel = tk.StringVar(self.root, value=channel)
         self.votingDuration = tk.StringVar(self.root, value=votingDuration)
+        self.tmiToken = tk.StringVar(self.root, value=tmiToken)
 
         self.channelLabel = ttk.Label(self.settings_tab, text="Channel").grid(
             row=0, column=0, padx=8, pady=8, sticky="e"
@@ -170,9 +171,25 @@ class ServerGUI:
             self.settings_tab, textvariable=self.channel
         ).grid(row=0, column=1, padx=8, pady=8)
 
+        self.tmiTokenLabel = ttk.Label(self.settings_tab, text="Oauth Token").grid(
+            row=1, column=0, padx=8, pady=8, sticky="e"
+        )
+        self.tmiTokenField = ttk.Entry(
+            self.settings_tab, show="*", textvariable=self.tmiToken
+        ).grid(row=1, column=1, padx=8, pady=8)
+
         self.votingDurationLabel = ttk.Label(
             self.settings_tab, text="Voting Durection"
-        ).grid(row=1, column=0, padx=8, pady=8, sticky="e")
+        ).grid(row=2, column=0, padx=8, pady=8, sticky="e")
         self.votingDurationField = ttk.Entry(
             self.settings_tab, textvariable=self.votingDuration
-        ).grid(row=1, column=1, padx=8, pady=8)
+        ).grid(row=2, column=1, padx=8, pady=8)
+
+        # Give save row/column a non-zero weight to give extra
+        # space to that row/column in the grid
+        self.settings_tab.grid_columnconfigure(10, weight=1)
+        self.settings_tab.grid_rowconfigure(10, weight=1)
+
+        self.saveSettings = ttk.Button(self.settings_tab, text="Save Settings").grid(
+            row=10, column=10, padx=8, pady=8, sticky="se"
+        )
