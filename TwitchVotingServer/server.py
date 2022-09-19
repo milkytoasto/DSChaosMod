@@ -59,7 +59,7 @@ async def voting_controller(bot):
         REMAINING_TIME -= 1
 
 
-def stop(gui):
+def stop():
     global RUNNING
     RUNNING = False
 

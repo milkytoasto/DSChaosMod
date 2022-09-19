@@ -129,9 +129,7 @@ class ServerGUI:
             command=lambda: async_handler(start)(self),
         )
         self.twButton.grid(row=0, column=1, padx=8)
-        self.stButton = ttk.Button(
-            self.top_frame, text="Stop", command=lambda: stop(self)
-        )
+        self.stButton = ttk.Button(self.top_frame, text="Stop", command=stop)
         self.stButton.grid(row=0, column=2)
 
     def __init_tabs(self):
