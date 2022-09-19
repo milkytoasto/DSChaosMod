@@ -3,26 +3,22 @@ import configparser
 import json
 import logging
 
-import websockets
 from async_tkinter_loop import async_mainloop
 from utils.ConfigHandler import ConfigHandler
 from utils.ServerGUI import ServerGUI
 from utils.TwitchBot import TwitchBot
+from utils.WebsocketHandler import WebsocketHandler
 
 config = configparser.ConfigParser()
 config.read("config.ini")
 
 BOT = False
 RUNNING = False
-CLIENTS = set()
 VOTES = {}
-
-ch = ConfigHandler(config)
 
 
 def load_config():
-    global PORT, ACCEPTING_VOTES, VOTING_DURATION, EFFECT_DURATION, REMAINING_TIME, TOKEN, CHANNEL
-    PORT = ch.get_option("WEBSOCKET", "PORT", 7890, type=int)
+    global ACCEPTING_VOTES, VOTING_DURATION, EFFECT_DURATION, REMAINING_TIME, TOKEN, CHANNEL
 
     ACCEPTING_VOTES = ch.get_option("VOTING", "INITIAL_STATE", True, type=bool)
     VOTING_DURATION = ch.get_option("VOTING", "VOTING_DURATION", 60, type=int)
@@ -31,37 +27,6 @@ def load_config():
 
     TOKEN = ch.get_option("TWITCH", "TMI_TOKEN", "", type=str)
     CHANNEL = ch.get_option("TWITCH", "CHANNEL", "", type=str)
-
-
-async def handler(websocket, path):
-    debug_logger = logging.getLogger("debug")
-    debug_logger.info(f"Websocket Handler: Client just connected.")
-    CLIENTS.add(websocket)
-
-    try:
-        async for message in websocket:
-            debug_logger.info(
-                f"Websocket Handler: Received message from client: {message}"
-            )
-            for connection in CLIENTS:
-                if connection != websocket:
-                    await connection.send(f"Websocket Handler: Someone said: {message}")
-    except websockets.exceptions.ConnectionClosed as e:
-        debug_logger.info(f"Websocket Handler: A client has lost connection.")
-    finally:
-        CLIENTS.remove(websocket)
-
-
-async def send(websocket, message):
-    try:
-        await websocket.send(message)
-    except websockets.ConnectionClosed:
-        pass
-
-
-def broadcast(message):
-    for websocket in CLIENTS:
-        asyncio.create_task(send(websocket, message))
 
 
 def broadcast_votes(votes):
@@ -75,7 +40,7 @@ def broadcast_votes(votes):
         "VOTES": votes,
     }
 
-    broadcast(json.dumps(broadcast_message))
+    wsh.broadcast(json.dumps(broadcast_message))
 
 
 async def voting_controller(bot):
@@ -134,12 +99,6 @@ async def start(gui):
     gui.stopped()
 
 
-async def websocket_server():
-    logger = logging.getLogger("debug")
-    logger.info(f"Websocket Server: Listening on port {PORT}")
-    await websockets.serve(handler, "localhost", PORT)
-
-
 def save_handler(fields):
 
     for section in fields:
@@ -155,9 +114,12 @@ def save_handler(fields):
 
 
 if __name__ == "__main__":
+    ch = ConfigHandler(config)
+    wsh = WebsocketHandler(port=7890)
+
     load_config()
 
-    gui = ServerGUI("Dark Souls Chaos Server", websocket_server=websocket_server)
+    gui = ServerGUI("Dark Souls Chaos Server", websocket_server=wsh.websocket_server)
     gui.init_commands(start=start, stop=stop)
     gui.init_settings_tab(
         saveHandler=save_handler,
