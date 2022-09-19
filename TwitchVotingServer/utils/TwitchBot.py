@@ -23,7 +23,7 @@ class TwitchBot(commands.Bot):
     def init_votes(self):
         self.votes = {key: set() for key in self.optionKeys}
         if self.messageHandler:
-            self.messageHandler({key: list(self.votes[key]) for key in self.optionKeys})
+            self.messageHandler({key: len(self.votes[key]) for key in self.optionKeys})
 
     async def event_ready(self):
         self.debug_logger.info(f"TwitchBot: Logged onto Twitch WS as {self.nick}")
@@ -43,5 +43,5 @@ class TwitchBot(commands.Bot):
 
             if self.messageHandler:
                 self.messageHandler(
-                    {key: list(self.votes[key]) for key in self.optionKeys}
+                    {key: len(self.votes[key]) for key in self.optionKeys}
                 )
