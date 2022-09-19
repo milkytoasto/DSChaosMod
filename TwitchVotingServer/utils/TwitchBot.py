@@ -18,10 +18,12 @@ class TwitchBot(commands.Bot):
         self.chat_logger = chat_logger
         self.channel = channel
         self.optionKeys = [str(val + 1) for val in range(numOptions)]
-        self.initVotes()
+        self.init_votes()
 
-    def initVotes(self):
+    def init_votes(self):
         self.votes = {key: set() for key in self.optionKeys}
+        if self.messageHandler:
+            self.messageHandler({key: list(self.votes[key]) for key in self.optionKeys})
 
     async def event_ready(self):
         self.debug_logger.info(f"TwitchBot: Logged onto Twitch WS as {self.nick}")
@@ -40,4 +42,6 @@ class TwitchBot(commands.Bot):
             self.votes[message.content].add(message.author.name)
 
             if self.messageHandler:
-                self.messageHandler(self.votes)
+                self.messageHandler(
+                    {key: list(self.votes[key]) for key in self.optionKeys}
+                )

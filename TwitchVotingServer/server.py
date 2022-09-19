@@ -1,5 +1,6 @@
 import asyncio
 import configparser
+import json
 import logging
 
 import websockets
@@ -14,7 +15,7 @@ config.read("config.ini")
 BOT = False
 RUNNING = False
 CLIENTS = set()
-
+VOTES = {}
 
 ch = ConfigHandler(config)
 
@@ -63,15 +64,33 @@ def broadcast(message):
         asyncio.create_task(send(websocket, message))
 
 
-async def voting_controller():
+def broadcast_votes(votes):
+    global VOTES
+    VOTES = votes
+
+    broadcast_message = {
+        "ACCEPTING_VOTES": ACCEPTING_VOTES,
+        "REMAINING_TIME": REMAINING_TIME,
+        "DURATION": VOTING_DURATION if ACCEPTING_VOTES else EFFECT_DURATION,
+        "VOTES": votes,
+    }
+
+    broadcast(json.dumps(broadcast_message))
+
+
+async def voting_controller(bot):
     global ACCEPTING_VOTES, REMAINING_TIME
 
     while RUNNING:
-        broadcast(f"{ACCEPTING_VOTES} Time remaining {REMAINING_TIME}")
         await asyncio.sleep(1)
+
         if REMAINING_TIME == 0:
+            bot.init_votes()
             ACCEPTING_VOTES = ~ACCEPTING_VOTES
             REMAINING_TIME = VOTING_DURATION if ACCEPTING_VOTES else EFFECT_DURATION
+        else:
+            broadcast_votes(VOTES)
+
         REMAINING_TIME -= 1
 
 
@@ -86,7 +105,7 @@ async def start():
     chat_logger = logging.getLogger("chat")
 
     if RUNNING:
-        debug_logger.error("Already running, dumbass.")
+        debug_logger.error("Already running.")
         return
 
     RUNNING = True
@@ -96,12 +115,12 @@ async def start():
         channel=CHANNEL,
         debug_logger=debug_logger,
         chat_logger=chat_logger,
-        messageHandler=broadcast,
+        messageHandler=broadcast_votes,
     )
 
     loop = asyncio.get_event_loop()
     twitch_task = loop.create_task(bot.start())
-    voting_task = loop.create_task(voting_controller())
+    voting_task = loop.create_task(voting_controller(bot))
 
     tasks = [twitch_task, voting_task]
     done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
