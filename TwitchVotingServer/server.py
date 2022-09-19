@@ -41,7 +41,7 @@ async def handler(websocket, path):
     try:
         async for message in websocket:
             debug_logger.info(
-                f"Websocket Handler: Received message from client: {message} {path}"
+                f"Websocket Handler: Received message from client: {message}"
             )
             for connection in CLIENTS:
                 if connection != websocket:
@@ -94,13 +94,15 @@ async def voting_controller(bot):
         REMAINING_TIME -= 1
 
 
-def stop():
+def stop(gui):
     global RUNNING
     RUNNING = False
 
 
-async def start():
+async def start(gui):
     global RUNNING
+    gui.started()
+
     debug_logger = logging.getLogger("debug")
     chat_logger = logging.getLogger("chat")
 
@@ -129,6 +131,7 @@ async def start():
         debug_logger.info(f"{len(done)} tasks exited. Cancelling {len(pending)} tasks ")
         p.cancel()
     debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
+    gui.stopped()
 
 
 async def websocket_server():
@@ -154,8 +157,8 @@ def save_handler(fields):
 if __name__ == "__main__":
     load_config()
 
-    gui = ServerGUI("Dark Souls Chaos Server")
-    gui.init_commands(websocket_server=websocket_server, start=start, stop=stop)
+    gui = ServerGUI("Dark Souls Chaos Server", websocket_server=websocket_server)
+    gui.init_commands(start=start, stop=stop)
     gui.init_settings_tab(
         saveHandler=save_handler,
         channel=CHANNEL,
@@ -163,4 +166,5 @@ if __name__ == "__main__":
         votingDuration=VOTING_DURATION,
         effectDuration=EFFECT_DURATION,
     )
+
     async_mainloop(gui.root)

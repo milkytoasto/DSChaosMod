@@ -37,7 +37,7 @@ class WidgetLogger(logging.Handler):
 
 
 class ServerGUI:
-    def __init__(self, title):
+    def __init__(self, title, websocket_server):
 
         root = tk.Tk()
         root.title(title)
@@ -62,6 +62,7 @@ class ServerGUI:
         self.__init_tabs()
         self.__init_logging_tab(self.debug_tab, "debug")
         self.__init_logging_tab(self.chat_tab, "chat")
+        async_handler(websocket_server)()
 
     def __configure_style(self):
         self.s = ttk.Style()
@@ -106,8 +107,13 @@ class ServerGUI:
             "TNotebook.Tab", background=[("active", self.bgcolor), ("disabled", "gray")]
         )
 
-    def __ws_button_press(self):
-        self.wsButton["state"] = "disabled"
+    def stopped(self):
+        self.twButton["state"] = "active"
+        self.stButton["state"] = "disabled"
+
+    def started(self):
+        self.twButton["state"] = "disabled"
+        self.stButton["state"] = "active"
 
     def __init_frames(self):
         self.top_frame = tk.Frame(self.root, width=450, height=50, pady=8, padx=8)
@@ -116,22 +122,17 @@ class ServerGUI:
         self.bottom_frame = tk.Frame(self.root, pady=8, padx=8)
         self.bottom_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
-    def init_commands(self, websocket_server, start, stop):
-        self.wsButton = ttk.Button(
-            self.top_frame,
-            text="Initiate Websocket Server",
-            command=lambda: [
-                self.__ws_button_press(),
-                async_handler(websocket_server)(),
-            ],
-        )
-        self.wsButton.grid(row=0, column=0)
+    def init_commands(self, start, stop):
         self.twButton = ttk.Button(
-            self.top_frame, text="Connect to Twitch", command=async_handler(start)
-        ).grid(row=0, column=1, padx=8)
-        self.stButton = ttk.Button(self.top_frame, text="Stop", command=stop).grid(
-            row=0, column=2
+            self.top_frame,
+            text="Connect to Twitch",
+            command=lambda: async_handler(start)(self),
         )
+        self.twButton.grid(row=0, column=1, padx=8)
+        self.stButton = ttk.Button(
+            self.top_frame, text="Stop", command=lambda: stop(self)
+        )
+        self.stButton.grid(row=0, column=2)
 
     def __init_tabs(self):
         self.tabControl = ttk.Notebook(self.bottom_frame)
