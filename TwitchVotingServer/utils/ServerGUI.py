@@ -58,10 +58,10 @@ class ServerGUI:
         self.root = root
 
         self.__configure_style()
-        self.__initFrames()
-        self.__initTabs()
-        self.__initLoggingTab(self.debug_tab, "debug")
-        self.__initLoggingTab(self.chat_tab, "chat")
+        self.__init_frames()
+        self.__init_tabs()
+        self.__init_logging_tab(self.debug_tab, "debug")
+        self.__init_logging_tab(self.chat_tab, "chat")
 
     def __configure_style(self):
         self.s = ttk.Style()
@@ -109,14 +109,14 @@ class ServerGUI:
     def __ws_button_press(self):
         self.wsButton["state"] = "disabled"
 
-    def __initFrames(self):
+    def __init_frames(self):
         self.top_frame = tk.Frame(self.root, width=450, height=50, pady=8, padx=8)
         self.top_frame.grid(row=0, sticky=tk.W)
 
         self.bottom_frame = tk.Frame(self.root, pady=8, padx=8)
         self.bottom_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
-    def initCommands(self, websocket_server, start, stop):
+    def init_commands(self, websocket_server, start, stop):
         self.wsButton = ttk.Button(
             self.top_frame,
             text="Initiate Websocket Server",
@@ -133,7 +133,7 @@ class ServerGUI:
             row=0, column=2
         )
 
-    def __initTabs(self):
+    def __init_tabs(self):
         self.tabControl = ttk.Notebook(self.bottom_frame)
         self.debug_tab = ttk.Frame(self.tabControl)
         self.chat_tab = ttk.Frame(self.tabControl)
@@ -143,7 +143,7 @@ class ServerGUI:
         self.tabControl.add(self.settings_tab, text="Settings")
         self.tabControl.pack(expand=1, fill="both")
 
-    def __initLoggingTab(self, tab, name=""):
+    def __init_logging_tab(self, tab, name=""):
         # Logging configuration
         logging.basicConfig(
             format="[%(asctime)s]: %(message)s",
@@ -159,37 +159,82 @@ class ServerGUI:
         text_handler = WidgetLogger(text)
         logger.addHandler(text_handler)
 
-    def initSettingsTab(self, channel="", votingDuration="", tmiToken=""):
+    def __save_settings(self, saveHandler):
+        for field in self.settingsFields:
+            field["state"] = "disabled"
+        saveHandler(self.settingsFieldValues)
+        for field in self.settingsFields:
+            field["state"] = "active"
+
+    def init_settings_tab(
+        self,
+        saveHandler,
+        channel="",
+        votingDuration=60,
+        effectDuration=120,
+        tmiToken="",
+    ):
         self.channel = tk.StringVar(self.root, value=channel)
-        self.votingDuration = tk.StringVar(self.root, value=votingDuration)
         self.tmiToken = tk.StringVar(self.root, value=tmiToken)
+
+        self.votingDuration = tk.StringVar(self.root, value=votingDuration)
+        self.effectDuration = tk.StringVar(self.root, value=effectDuration)
 
         self.channelLabel = ttk.Label(self.settings_tab, text="Channel").grid(
             row=0, column=0, padx=8, pady=8, sticky="e"
         )
-        self.channelField = ttk.Entry(
-            self.settings_tab, textvariable=self.channel
-        ).grid(row=0, column=1, padx=8, pady=8)
+        self.channelField = ttk.Entry(self.settings_tab, textvariable=self.channel)
+        self.channelField.grid(row=0, column=1, padx=8, pady=8)
 
         self.tmiTokenLabel = ttk.Label(self.settings_tab, text="Oauth Token").grid(
             row=1, column=0, padx=8, pady=8, sticky="e"
         )
         self.tmiTokenField = ttk.Entry(
             self.settings_tab, show="*", textvariable=self.tmiToken
-        ).grid(row=1, column=1, padx=8, pady=8)
+        )
+        self.tmiTokenField.grid(row=1, column=1, padx=8, pady=8)
 
         self.votingDurationLabel = ttk.Label(
             self.settings_tab, text="Voting Durection"
         ).grid(row=2, column=0, padx=8, pady=8, sticky="e")
         self.votingDurationField = ttk.Entry(
             self.settings_tab, textvariable=self.votingDuration
-        ).grid(row=2, column=1, padx=8, pady=8)
+        )
+        self.votingDurationField.grid(row=2, column=1, padx=8, pady=8)
+
+        self.effectDurationLabel = ttk.Label(
+            self.settings_tab, text="Voting Durection"
+        ).grid(row=3, column=0, padx=8, pady=8, sticky="e")
+        self.effectDurationField = ttk.Entry(
+            self.settings_tab, textvariable=self.effectDuration
+        )
+        self.effectDurationField.grid(row=3, column=1, padx=8, pady=8)
 
         # Give save row/column a non-zero weight to give extra
         # space to that row/column in the grid
         self.settings_tab.grid_columnconfigure(10, weight=1)
         self.settings_tab.grid_rowconfigure(10, weight=1)
 
-        self.saveSettings = ttk.Button(self.settings_tab, text="Save Settings").grid(
-            row=10, column=10, padx=8, pady=8, sticky="se"
-        )
+        self.settingsFields = [
+            self.channelField,
+            self.tmiTokenField,
+            self.votingDurationField,
+            self.effectDurationField,
+        ]
+
+        self.settingsFieldValues = {
+            "TWITCH": {
+                "CHANNEL": self.channel,
+                "TMI_TOKEN": self.tmiToken,
+            },
+            "VOTING": {
+                "VOTING_DURATION": self.votingDuration,
+                "EFFECT_DURATION": self.effectDuration,
+            },
+        }
+
+        self.saveSettings = ttk.Button(
+            self.settings_tab,
+            text="Save Settings",
+            command=lambda: self.__save_settings(saveHandler),
+        ).grid(row=10, column=10, padx=8, pady=8, sticky="se")

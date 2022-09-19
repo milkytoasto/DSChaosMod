@@ -4,6 +4,7 @@ import logging
 
 import websockets
 from async_tkinter_loop import async_mainloop
+from utils.ConfigHandler import ConfigHandler
 from utils.ServerGUI import ServerGUI
 from utils.TwitchBot import TwitchBot
 
@@ -12,15 +13,23 @@ config.read("config.ini")
 
 BOT = False
 RUNNING = False
-PORT = config["WEBSOCKET"]["PORT"]
-VOTING_ENABLED = config["VOTING"].getboolean("INITIAL_STATE")
-VOTING_ENABLED_PERIOD = config["VOTING"].getint("VOTING_PERIOD")
-VOTING_DISABLED_PERIOD = config["VOTING"].getint("VOTING_INTERVAL")
-VOTING_PERIOD = VOTING_ENABLED_PERIOD if VOTING_ENABLED else VOTING_DISABLED_PERIOD
-COUNTDOWN = VOTING_PERIOD
-TOKEN = config["TWITCH"]["TMI_TOKEN"]
-CHANNEL = config["TWITCH"]["CHANNEL"]
 CLIENTS = set()
+
+
+ch = ConfigHandler(config)
+
+
+def load_config():
+    global PORT, ACCEPTING_VOTES, VOTING_DURATION, EFFECT_DURATION, REMAINING_TIME, TOKEN, CHANNEL
+    PORT = ch.get_option("WEBSOCKET", "PORT", 7890, type=int)
+
+    ACCEPTING_VOTES = ch.get_option("VOTING", "INITIAL_STATE", True, type=bool)
+    VOTING_DURATION = ch.get_option("VOTING", "VOTING_DURATION", 60, type=int)
+    EFFECT_DURATION = ch.get_option("VOTING", "EFFECT_DURATION", 60, type=int)
+    REMAINING_TIME = VOTING_DURATION if ACCEPTING_VOTES else EFFECT_DURATION
+
+    TOKEN = ch.get_option("TWITCH", "TMI_TOKEN", "", type=str)
+    CHANNEL = ch.get_option("TWITCH", "CHANNEL", "", type=str)
 
 
 async def handler(websocket, path):
@@ -55,18 +64,15 @@ def broadcast(message):
 
 
 async def voting_controller():
-    global VOTING_ENABLED, VOTING_PERIOD, COUNTDOWN
+    global ACCEPTING_VOTES, REMAINING_TIME
 
     while RUNNING:
-        broadcast(f"{VOTING_ENABLED} Time remaining {COUNTDOWN}")
+        broadcast(f"{ACCEPTING_VOTES} Time remaining {REMAINING_TIME}")
         await asyncio.sleep(1)
-        if COUNTDOWN == 0:
-            VOTING_ENABLED = ~VOTING_ENABLED
-            VOTING_PERIOD = (
-                VOTING_ENABLED_PERIOD if VOTING_ENABLED else VOTING_DISABLED_PERIOD
-            )
-            COUNTDOWN = VOTING_PERIOD
-        COUNTDOWN -= 1
+        if REMAINING_TIME == 0:
+            ACCEPTING_VOTES = ~ACCEPTING_VOTES
+            REMAINING_TIME = VOTING_DURATION if ACCEPTING_VOTES else EFFECT_DURATION
+        REMAINING_TIME -= 1
 
 
 def stop():
@@ -112,8 +118,30 @@ async def websocket_server():
     await websockets.serve(handler, "localhost", PORT)
 
 
+def save_handler(fields):
+
+    for section in fields:
+        for option in fields[section]:
+            value = fields[section][option].get()
+            if value:
+                config.set(section, option, value)
+
+    with open("config.ini", "w") as configfile:
+        config.write(configfile)
+
+    load_config()
+
+
 if __name__ == "__main__":
+    load_config()
+
     gui = ServerGUI("Dark Souls Chaos Server")
-    gui.initCommands(websocket_server=websocket_server, start=start, stop=stop)
-    gui.initSettingsTab(channel=CHANNEL, votingDuration=VOTING_ENABLED_PERIOD)
+    gui.init_commands(websocket_server=websocket_server, start=start, stop=stop)
+    gui.init_settings_tab(
+        saveHandler=save_handler,
+        channel=CHANNEL,
+        tmiToken=TOKEN,
+        votingDuration=VOTING_DURATION,
+        effectDuration=EFFECT_DURATION,
+    )
     async_mainloop(gui.root)
