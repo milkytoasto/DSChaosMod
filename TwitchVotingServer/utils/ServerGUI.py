@@ -116,7 +116,7 @@ class ServerGUI:
         self.psButton["state"] = "disabled"
 
     def paused(self):
-        self.twButton["state"] = "disabled"
+        self.twButton["state"] = "active"
         self.stButton["state"] = "active"
         self.psButton["state"] = "disabled"
 
