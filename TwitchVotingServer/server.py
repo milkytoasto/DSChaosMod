@@ -1,7 +1,6 @@
 import configparser
 
 from async_tkinter_loop import async_mainloop
-from utils import load_twitch_config, save_handler, start
 from utils.ConfigHandler import ConfigHandler
 from utils.ServerGUI import ServerGUI
 from utils.VotingHandler import VotingHandler
@@ -16,14 +15,12 @@ if __name__ == "__main__":
     vh = VotingHandler(configHandler=ch, websocketHandler=wsh)
 
     gui = ServerGUI("Dark Souls Chaos Server", websocket_server=wsh.websocket_server)
-    gui.init_commands(start=lambda: start(vh, ch), pause=vh.pause, stop=vh.stop)
-
-    CHANNEL, TOKEN = load_twitch_config(ch)
+    gui.init_commands(start=lambda: vh.start(), pause=vh.pause, stop=vh.stop)
 
     gui.init_settings_tab(
-        saveHandler=lambda fields: save_handler(fields=fields, vh=vh, config=config),
-        channel=CHANNEL,
-        tmiToken=TOKEN,
+        saveHandler=lambda fields: [ch.save_config(fields), vh.load_config()],
+        channel=ch.get_channel(),
+        tmiToken=ch.get_token(),
         votingDuration=vh.votingDuration,
         effectDuration=vh.effectDuration,
     )

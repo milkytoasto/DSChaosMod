@@ -8,7 +8,9 @@ from async_tkinter_loop import async_handler
 
 class WidgetLogger(logging.Handler):
     """
-    This implementation is based on:
+    This implementation is based on the solutions
+    provided at this stackoverflow question:
+
     https://stackoverflow.com/questions/13318742/python-logging-to-tkinter-text-widget
     """
 

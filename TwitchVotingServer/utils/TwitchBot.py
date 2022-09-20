@@ -40,10 +40,7 @@ class TwitchBot(commands.Bot):
 
         self.chat_logger.info(f"{author.name}: {content}")
 
-        if not self.acceptingVotes:
-            return
-
-        if content in self.votes.keys():
+        if self.acceptingVotes and content in self.votes.keys():
             self.votes[content].add(message.author.name)
 
             if self.messageHandler:
