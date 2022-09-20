@@ -12,16 +12,18 @@ class TwitchBot(commands.Bot):
         numOptions=3,
     ):
         super().__init__(token=token, prefix="?", initial_channels=[channel])
-        self.voting = False
+        self.acceptingVotes = False
         self.messageHandler = messageHandler
         self.debug_logger = debug_logger
         self.chat_logger = chat_logger
         self.channel = channel
         self.optionKeys = [str(val + 1) for val in range(numOptions)]
-        self.init_votes()
 
-    def init_votes(self):
+    def init_votes(self, acceptingVotes):
+        self.acceptingVotes = acceptingVotes
+
         self.votes = {key: set() for key in self.optionKeys}
+
         if self.messageHandler:
             self.messageHandler({key: len(self.votes[key]) for key in self.optionKeys})
 
@@ -38,8 +40,11 @@ class TwitchBot(commands.Bot):
 
         self.chat_logger.info(f"{author.name}: {content}")
 
-        if message.content in self.votes.keys():
-            self.votes[message.content].add(message.author.name)
+        if not self.acceptingVotes:
+            return
+
+        if content in self.votes.keys():
+            self.votes[content].add(message.author.name)
 
             if self.messageHandler:
                 self.messageHandler(

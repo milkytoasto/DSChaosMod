@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 
 
 class VotingHandler:
@@ -10,21 +11,32 @@ class VotingHandler:
         self.configHandler = configHandler
         self.load_config()
 
-    def stop(self):
+    def set_bot(self, bot):
+        self.bot = bot
+
+    def __init_votes(self):
+        self.bot.init_votes(self.acceptingVotes)
+
+    def pause(self):
         self.running = False
 
-    async def voting_controller(self, twitchBot):
+    def stop(self):
+        self.running = False
+        self.__init_votes()
+
+    async def voting_controller(self):
         self.running = True
+        self.__init_votes()
 
         while self.running:
             await asyncio.sleep(1)
 
             if self.remainingTime == 0:
-                twitchBot.init_votes()
                 self.acceptingVotes = not self.acceptingVotes
                 self.remainingTime = (
                     self.votingDuration if self.acceptingVotes else self.effectDuration
                 )
+                self.__init_votes()
             else:
                 self.broadcast_votes(self.votes)
 
@@ -41,8 +53,12 @@ class VotingHandler:
             else self.effectDuration,
             "VOTES": self.votes,
         }
+        broadcast_message = json.dumps(broadcast_message)
 
-        self.websocketHandler.broadcast(json.dumps(broadcast_message))
+        logger = logging.getLogger("broadcast")
+        logger.info(broadcast_message)
+
+        self.websocketHandler.broadcast(broadcast_message)
 
     def load_config(self):
         self.acceptingVotes = self.configHandler.get_option(

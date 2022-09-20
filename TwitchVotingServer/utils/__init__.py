@@ -11,8 +11,7 @@ def load_twitch_config(ch):
     return CHANNEL, TOKEN
 
 
-async def start(gui, vh, ch):
-    gui.started()
+async def start(vh, ch):
 
     debug_logger = logging.getLogger("debug")
     chat_logger = logging.getLogger("chat")
@@ -30,10 +29,11 @@ async def start(gui, vh, ch):
         chat_logger=chat_logger,
         messageHandler=vh.broadcast_votes,
     )
+    vh.set_bot(bot)
 
     loop = asyncio.get_event_loop()
     twitch_task = loop.create_task(bot.start())
-    voting_task = loop.create_task(vh.voting_controller(bot))
+    voting_task = loop.create_task(vh.voting_controller())
 
     tasks = [twitch_task, voting_task]
     done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
@@ -43,7 +43,6 @@ async def start(gui, vh, ch):
         p.cancel()
 
     debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
-    gui.stopped()
 
 
 def save_handler(fields, vh, config):

@@ -16,7 +16,7 @@ if __name__ == "__main__":
     vh = VotingHandler(configHandler=ch, websocketHandler=wsh)
 
     gui = ServerGUI("Dark Souls Chaos Server", websocket_server=wsh.websocket_server)
-    gui.init_commands(start=lambda gui: start(gui, vh, ch), stop=vh.stop)
+    gui.init_commands(start=lambda: start(vh, ch), pause=vh.pause, stop=vh.stop)
 
     CHANNEL, TOKEN = load_twitch_config(ch)
 

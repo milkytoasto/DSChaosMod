@@ -62,6 +62,7 @@ class ServerGUI:
         self.__init_tabs()
         self.__init_logging_tab(self.debug_tab, "debug")
         self.__init_logging_tab(self.chat_tab, "chat")
+        self.__init_logging_tab(self.broadcast_tab, "broadcast")
         async_handler(websocket_server)()
 
     def __configure_style(self):
@@ -110,10 +111,17 @@ class ServerGUI:
     def stopped(self):
         self.twButton["state"] = "active"
         self.stButton["state"] = "disabled"
+        self.psButton["state"] = "disabled"
+
+    def paused(self):
+        self.twButton["state"] = "disabled"
+        self.stButton["state"] = "active"
+        self.psButton["state"] = "disabled"
 
     def started(self):
         self.twButton["state"] = "disabled"
         self.stButton["state"] = "active"
+        self.psButton["state"] = "active"
 
     def __init_frames(self):
         self.top_frame = tk.Frame(self.root, width=450, height=50, pady=8, padx=8)
@@ -122,23 +130,34 @@ class ServerGUI:
         self.bottom_frame = tk.Frame(self.root, pady=8, padx=8)
         self.bottom_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
-    def init_commands(self, start, stop):
+    def init_commands(self, start, pause, stop):
         self.twButton = ttk.Button(
             self.top_frame,
             text="Connect to Twitch",
-            command=lambda: async_handler(start)(self),
+            command=lambda: [async_handler(start)(), self.started()],
         )
         self.twButton.grid(row=0, column=1, padx=8)
-        self.stButton = ttk.Button(self.top_frame, text="Stop", command=stop)
-        self.stButton.grid(row=0, column=2)
+
+        self.psButton = ttk.Button(
+            self.top_frame, text="Pause", command=lambda: [pause(), self.paused()]
+        )
+        self.psButton.grid(row=0, column=2)
+
+        self.stButton = ttk.Button(
+            self.top_frame, text="Stop", command=lambda: [stop(), self.stopped()]
+        )
+        self.stButton.grid(row=0, column=3, padx=8)
+        self.stopped()
 
     def __init_tabs(self):
         self.tabControl = ttk.Notebook(self.bottom_frame)
         self.debug_tab = ttk.Frame(self.tabControl)
         self.chat_tab = ttk.Frame(self.tabControl)
+        self.broadcast_tab = ttk.Frame(self.tabControl)
         self.settings_tab = ttk.Frame(self.tabControl)
         self.tabControl.add(self.debug_tab, text="Debugging")
         self.tabControl.add(self.chat_tab, text="Chat")
+        self.tabControl.add(self.broadcast_tab, text="Broadcast")
         self.tabControl.add(self.settings_tab, text="Settings")
         self.tabControl.pack(expand=1, fill="both")
 
