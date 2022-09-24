@@ -1,3 +1,5 @@
+import random
+
 from twitchio.ext import commands
 
 
@@ -17,15 +19,36 @@ class TwitchBot(commands.Bot):
         self.debug_logger = debug_logger
         self.chat_logger = chat_logger
         self.channel = channel
-        self.optionKeys = [str(val + 1) for val in range(numOptions)]
+
+    def getOptions(self):
+        options = [
+            "TEST",
+            "TEST2",
+            "TEST3",
+            "TEST4",
+        ]
+        sampledOptions = random.sample(options, k=3)
+        return sampledOptions
 
     def init_votes(self, acceptingVotes):
         self.acceptingVotes = acceptingVotes
 
-        self.votes = {key: set() for key in self.optionKeys}
+        options = self.getOptions()
+        self.votes = {
+            str(index + 1): {"votes": set(), "name": value}
+            for index, value in enumerate(options)
+        }
 
         if self.messageHandler:
-            self.messageHandler({key: len(self.votes[key]) for key in self.optionKeys})
+            self.messageHandler(
+                {
+                    index: {
+                        "count": len(self.votes[index]["votes"]),
+                        "name": self.votes[index]["name"],
+                    }
+                    for index in self.votes.keys()
+                }
+            )
 
     async def event_ready(self):
         self.debug_logger.info(f"TwitchBot: Logged onto Twitch WS as {self.nick}")
@@ -36,14 +59,21 @@ class TwitchBot(commands.Bot):
             return
 
         author = message.author
+        # content = str(random.randint(1, 3))
         content = message.content
 
         self.chat_logger.info(f"{author.name}: {content}")
 
         if self.acceptingVotes and content in self.votes.keys():
-            self.votes[content].add(message.author.name)
+            self.votes[content]["votes"].add(message.author.name)
 
             if self.messageHandler:
                 self.messageHandler(
-                    {key: len(self.votes[key]) for key in self.optionKeys}
+                    {
+                        index: {
+                            "count": len(self.votes[index]["votes"]),
+                            "name": self.votes[index]["name"],
+                        }
+                        for index in self.votes.keys()
+                    }
                 )
