@@ -1,7 +1,6 @@
 # DSChaosMod
 
-Installing
----
+## Installing
 
 1. Clone the repository using `git clone https://github.com/milkytoasto/DSChaosMod.git`
 2. Go into the project root directory with `cd DSChaosMod`
@@ -13,8 +12,7 @@ And that should be all you need to get started on development. There is more pla
 
 At this time I would recommend running `git update-index --assume-unchanged .\TwitchVotingServer\config.ini` to prevent committing any secrets you may store in there.
 
-Usage
----
+## Usage
 
 Currently there is a gui server that can be run by running the `server.py` file. A sample `client.py` file has been added to receive and print the messages the websocket server broadcasts.
 
