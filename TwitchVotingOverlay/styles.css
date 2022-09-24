@@ -1,0 +1,43 @@
+.progress-bar {
+  width: 300px;
+  background: rgba(55, 55, 55, 0.2);
+  position: relative;
+}
+
+.progress-bar-value {
+  background: #6441a5;
+  padding: 5px 0px;
+  text-align: left;
+  height: 20px;
+
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+
+.progress-bar-value span {
+  display: inline-block;
+  position: absolute;
+  width: calc(100% - 8px);
+  left: 8px;
+}
+
+#time-bar {
+  width: 100%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+.success {
+  background-color: #099136;
+}
+
+.warning {
+  background-color: #c4b816;
+}
+
+.danger {
+  background-color: #c41515;
+}
