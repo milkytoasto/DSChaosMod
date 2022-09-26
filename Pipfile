@@ -4,9 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-websockets = "*"
-async-tkinter-loop = "*"
-twitchio = "*"
+websockets = ">=10.3"
+async-tkinter-loop = ">=0.6.0"
+twitchio = ">=2.4.0"
+pymem = ">=1.8.3"
 
 [dev-packages]
 pre-commit = "*"
