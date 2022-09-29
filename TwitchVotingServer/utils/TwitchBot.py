@@ -20,20 +20,9 @@ class TwitchBot(commands.Bot):
         self.chat_logger = chat_logger
         self.channel = channel
 
-    def getOptions(self):
-        options = [
-            "TEST",
-            "TEST2",
-            "TEST3",
-            "TEST4",
-        ]
-        sampledOptions = random.sample(options, k=3)
-        return sampledOptions
-
-    def init_votes(self, acceptingVotes):
+    def init_votes(self, acceptingVotes, options):
         self.acceptingVotes = acceptingVotes
 
-        options = self.getOptions()
         self.votes = {
             str(index + 1): {"votes": set(), "name": value}
             for index, value in enumerate(options)
