@@ -1,6 +1,7 @@
-from DarkSoulsRemastered.Effects import BaseEffect
-from DarkSoulsRemastered.Memory import AOBS, packBytes
 from pymem import memory, pattern
+
+from ..Memory import AOBS, packBytes
+from .Effect import BaseEffect
 
 
 class WarpToBonfire(BaseEffect):

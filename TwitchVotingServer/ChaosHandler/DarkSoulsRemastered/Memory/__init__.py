@@ -1,6 +1,6 @@
 import struct
 
-from DarkSoulsRemastered.Memory.AOBS import *
+from .AOBS import *
 
 
 def packBytes(address):
