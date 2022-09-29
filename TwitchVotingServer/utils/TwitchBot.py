@@ -24,8 +24,8 @@ class TwitchBot(commands.Bot):
         self.acceptingVotes = acceptingVotes
 
         self.votes = {
-            str(index + 1): {"votes": set(), "name": value}
-            for index, value in enumerate(options)
+            str(index + 1): {"votes": set(), "name": key, "effect": options[key]}
+            for index, key in enumerate(options)
         }
 
         if self.messageHandler:

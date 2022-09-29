@@ -1,11 +1,8 @@
-import asyncio
 import random
-import time
 
 import psutil
 from pymem import Pymem, process
 from pymem.exception import ProcessNotFound
-from regex import D
 
 from .DarkSoulsRemastered.Effects import WarpToBonfire
 from .utils.ProcessTitles import ProcessTitles
@@ -24,13 +21,17 @@ class ChaosHandler:
         pass
 
     def get_options(self):
-        effect_options = [
-            "TEST",
-            "TEST2",
-            "TEST3",
-            "TEST4",
-        ]
-        self.sampled_options = random.sample(effect_options, k=3)
+        effect_options = {
+            "Warp To Bonfire": WarpToBonfire,
+            "Warp To Bonfire 2": WarpToBonfire,
+            "Warp To Bonfire 3": WarpToBonfire,
+            "Warp To Bonfire 4": WarpToBonfire,
+        }
+        self.sampled_options = {
+            key: effect_options[key]
+            for key in random.sample(effect_options.keys(), k=3)
+        }
+        print(self.sampled_options)
         return self.sampled_options
 
     def hook(self):
