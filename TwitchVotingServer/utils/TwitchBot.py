@@ -11,7 +11,6 @@ class TwitchBot(commands.Bot):
         debug_logger,
         chat_logger,
         messageHandler=False,
-        numOptions=3,
     ):
         super().__init__(token=token, prefix="?", initial_channels=[channel])
         self.acceptingVotes = False
@@ -20,12 +19,12 @@ class TwitchBot(commands.Bot):
         self.chat_logger = chat_logger
         self.channel = channel
 
-    def init_votes(self, acceptingVotes, options):
+    def init_votes(self, acceptingVotes, effects):
         self.acceptingVotes = acceptingVotes
 
         self.votes = {
-            str(index + 1): {"votes": set(), "name": key, "effect": options[key]}
-            for index, key in enumerate(options)
+            str(index + 1): {"votes": set(), "name": effect.name, "effect": effect}
+            for index, effect in enumerate(effects)
         }
 
         if self.messageHandler:
@@ -38,6 +37,19 @@ class TwitchBot(commands.Bot):
                     for index in self.votes.keys()
                 }
             )
+
+    def get_effect(self):
+        max_value = -1
+        results = {}
+        for (key, value) in self.votes.items():
+            count = len(value["votes"])
+            if count > max_value:
+                results = {}
+                max_value = count
+            if count == max_value:
+                results[key] = value
+        result = results[random.choice(list(results.keys()))]
+        return result["effect"]
 
     async def event_ready(self):
         self.debug_logger.info(f"TwitchBot: Logged onto Twitch WS as {self.nick}")
