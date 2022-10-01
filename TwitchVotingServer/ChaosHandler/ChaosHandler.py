@@ -1,4 +1,5 @@
 import random
+from lib2to3.pytree import Base
 
 import psutil
 from pymem import Pymem, process
@@ -22,7 +23,7 @@ class ChaosHandler:
 
     def get_options(self):
         effect_options = [
-            WarpToBonfire,
+            BaseEffect,
             BaseEffect,
             WarpToBonfire,
         ]
@@ -45,7 +46,7 @@ class ChaosHandler:
             self.pm.process_handle, self.process_title
         )
 
-    async def trigger_effect(self, seconds=60, effect=WarpToBonfire):
+    async def trigger_effect(self, effect=BaseEffect, seconds=60):
         self.current_effect = effect
         effect.start(self.pm, self.module)
         self.current_effect.stop(self.pm, self.module)

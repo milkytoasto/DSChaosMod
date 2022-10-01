@@ -63,10 +63,13 @@ class VotingHandler:
         debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
     async def effect_controller(self):
+        self.chaosHandler.hook()
         while True:
             await self.event.wait()
-            self.chaosHandler.hook()
-            await self.chaosHandler.trigger_effect()
+            print(f"Triggering {self.current_effect.name} effect")
+            await self.chaosHandler.trigger_effect(
+                effect=self.current_effect, seconds=self.effectDuration
+            )
             self.event.clear()
 
     async def voting_controller(self):
@@ -78,6 +81,7 @@ class VotingHandler:
 
             if self.remainingTime == 0:
                 if self.acceptingVotes:
+                    self.current_effect = self.bot.get_effect()
                     self.event.set()
 
                 self.acceptingVotes = not self.acceptingVotes
