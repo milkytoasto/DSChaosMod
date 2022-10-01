@@ -5,6 +5,8 @@ from .Effect import BaseEffect
 
 
 class WarpToBonfire(BaseEffect):
+    name = "Warp to Bonfire"
+
     @classmethod
     def start(cls, pm, module):
         GetB = pattern.pattern_scan_module(pm.process_handle, module, AOBS.BaseB)
