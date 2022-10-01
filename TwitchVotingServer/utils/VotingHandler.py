@@ -14,9 +14,6 @@ class VotingHandler:
         self.configHandler = configHandler
         self.load_config()
 
-    def set_bot(self, bot):
-        self.bot = bot
-
     def pause(self):
         self.running = False
 
@@ -34,20 +31,19 @@ class VotingHandler:
             self.debug_logger.error("Already running.")
             return
 
-        bot = TwitchBot(
+        self.bot = TwitchBot(
             token=self.configHandler.get_token(),
             channel=self.configHandler.get_channel(),
             debug_logger=self.debug_logger,
             chat_logger=chat_logger,
             messageHandler=self.broadcast_votes,
         )
-        self.set_bot(bot)
 
         loop = asyncio.get_event_loop()
 
         self.event = asyncio.Event()
 
-        twitch_task = loop.create_task(bot.start())
+        twitch_task = loop.create_task(self.bot.start())
         effect_task = asyncio.ensure_future(self.effect_controller())
         voting_task = loop.create_task(self.voting_controller())
 
