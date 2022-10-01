@@ -1,32 +1,19 @@
 import random
-from lib2to3.pytree import Base
 
 import psutil
 from pymem import Pymem, process
 from pymem.exception import ProcessNotFound
 
-from .DarkSoulsRemastered.Effects import BaseEffect, WarpToBonfire
-from .utils.ProcessTitles import ProcessTitles
+from .DarkSoulsRemastered.Game import DarkSoulsRemastered
 
 
 class NoProcessFoundError(Exception):
     pass
 
 
-class Effects:
-    WarpToBonfire: WarpToBonfire
-
-
 class ChaosHandler:
-    def __init_(self):
-        pass
-
     def get_options(self):
-        effect_options = [
-            BaseEffect,
-            BaseEffect,
-            WarpToBonfire,
-        ]
+        effect_options = self.game.effects
         self.sampled_options = random.sample(effect_options, k=3)
         return self.sampled_options
 
@@ -46,7 +33,7 @@ class ChaosHandler:
             self.pm.process_handle, self.process_title
         )
 
-    async def trigger_effect(self, effect=BaseEffect, seconds=60):
+    async def trigger_effect(self, effect):
         self.current_effect = effect
         effect.start(self.pm, self.module)
         self.current_effect.stop(self.pm, self.module)
@@ -54,6 +41,7 @@ class ChaosHandler:
     def __find_process(self):
         self.process_title = None
         for process in psutil.process_iter():
-            if process.name() == ProcessTitles.DSR:
-                self.process_title = ProcessTitles.DSR
+            if process.name() == DarkSoulsRemastered.process_title:
+                self.game = DarkSoulsRemastered
+                self.process_title = DarkSoulsRemastered.process_title
         return self.process_title

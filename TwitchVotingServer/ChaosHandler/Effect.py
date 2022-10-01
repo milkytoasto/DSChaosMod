@@ -1,8 +1,6 @@
-from abc import abstractclassmethod, abstractmethod
-
-
 class BaseEffect:
     name = "Base Effect"
+    seconds: int
 
     @classmethod
     def start(cls, *args):

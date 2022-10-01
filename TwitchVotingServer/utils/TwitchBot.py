@@ -60,7 +60,6 @@ class TwitchBot(commands.Bot):
             return
 
         author = message.author
-        # content = str(random.randint(1, 3))
         content = message.content
 
         self.chat_logger.info(f"{author.name}: {content}")

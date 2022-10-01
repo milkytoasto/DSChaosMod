@@ -27,17 +27,17 @@ class VotingHandler:
 
     async def start(self):
 
-        debug_logger = logging.getLogger("debug")
+        self.debug_logger = logging.getLogger("debug")
         chat_logger = logging.getLogger("chat")
 
         if self.running:
-            debug_logger.error("Already running.")
+            self.debug_logger.error("Already running.")
             return
 
         bot = TwitchBot(
             token=self.configHandler.get_token(),
             channel=self.configHandler.get_channel(),
-            debug_logger=debug_logger,
+            debug_logger=self.debug_logger,
             chat_logger=chat_logger,
             messageHandler=self.broadcast_votes,
         )
@@ -55,21 +55,20 @@ class VotingHandler:
         done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
 
         for p in pending:
-            debug_logger.info(
+            self.debug_logger.info(
                 f"{len(done)} tasks exited. Cancelling {len(pending)} tasks "
             )
             p.cancel()
 
-        debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
+        self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
     async def effect_controller(self):
         self.chaosHandler.hook()
         while True:
             await self.event.wait()
-            print(f"Triggering {self.current_effect.name} effect")
-            await self.chaosHandler.trigger_effect(
-                effect=self.current_effect, seconds=self.effectDuration
-            )
+            self.debug_logger.info(f"Triggering {self.current_effect.name} effect")
+            self.current_effect.seconds = self.effectDuration
+            await self.chaosHandler.trigger_effect(self.current_effect)
             self.event.clear()
 
     async def voting_controller(self):

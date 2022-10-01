@@ -1,7 +1,7 @@
+from ChaosHandler.Effect import BaseEffect
 from pymem import memory, pattern
 
 from ..Memory import AOBS, packBytes
-from .Effect import BaseEffect
 
 
 class WarpToBonfire(BaseEffect):
