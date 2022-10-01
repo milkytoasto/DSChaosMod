@@ -8,7 +8,7 @@ class WarpToBonfire(BaseEffect):
     name = "Warp to Bonfire"
 
     @classmethod
-    def start(cls, pm, module):
+    async def start(cls, pm, module):
         GetB = pattern.pattern_scan_module(pm.process_handle, module, AOBS.BaseB)
         BaseB = GetB + pm.read_int(GetB + 3) + 7
 

@@ -1,9 +1,7 @@
-from ChaosHandler.Effect import BaseEffect
-
-from .Effects import WarpToBonfire
+from .Effects import DisableHUD, LowerDrawDistance, Sliding, WarpToBonfire
 
 
 class DarkSoulsRemastered:
     name = "Dark Souls Remastered"
     process_title = "DarkSoulsRemastered.exe"
-    effects = [WarpToBonfire, BaseEffect, BaseEffect]
+    effects = [LowerDrawDistance, LowerDrawDistance, LowerDrawDistance]

@@ -35,8 +35,7 @@ class ChaosHandler:
 
     async def trigger_effect(self, effect):
         self.current_effect = effect
-        effect.start(self.pm, self.module)
-        self.current_effect.stop(self.pm, self.module)
+        await effect.start(self.pm, self.module)
 
     def __find_process(self):
         self.process_title = None

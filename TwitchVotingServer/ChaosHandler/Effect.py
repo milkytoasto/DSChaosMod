@@ -3,9 +3,9 @@ class BaseEffect:
     seconds: int
 
     @classmethod
-    def start(cls, *args):
+    async def start(cls, *args):
         pass
 
     @classmethod
-    def stop(cls, *args):
+    async def stop(cls, *args):
         pass
