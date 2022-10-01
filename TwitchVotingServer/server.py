@@ -1,6 +1,7 @@
 import configparser
 
 from async_tkinter_loop import async_mainloop
+from ChaosHandler.ChaosHandler import ChaosHandler
 from utils.ConfigHandler import ConfigHandler
 from utils.ServerGUI import ServerGUI
 from utils.VotingHandler import VotingHandler
@@ -10,9 +11,10 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read("config.ini")
 
+    chaos = ChaosHandler()
     ch = ConfigHandler(config)
     wsh = WebsocketHandler(port=7890)
-    vh = VotingHandler(configHandler=ch, websocketHandler=wsh)
+    vh = VotingHandler(configHandler=ch, chaosHandler=chaos, websocketHandler=wsh)
 
     gui = ServerGUI("Dark Souls Chaos Server", websocket_server=wsh.websocket_server)
     gui.init_commands(start=lambda: vh.start(), pause=vh.pause, stop=vh.stop)

@@ -11,7 +11,6 @@ class TwitchBot(commands.Bot):
         debug_logger,
         chat_logger,
         messageHandler=False,
-        numOptions=3,
     ):
         super().__init__(token=token, prefix="?", initial_channels=[channel])
         self.acceptingVotes = False
@@ -20,23 +19,12 @@ class TwitchBot(commands.Bot):
         self.chat_logger = chat_logger
         self.channel = channel
 
-    def getOptions(self):
-        options = [
-            "TEST",
-            "TEST2",
-            "TEST3",
-            "TEST4",
-        ]
-        sampledOptions = random.sample(options, k=3)
-        return sampledOptions
-
-    def init_votes(self, acceptingVotes):
+    def init_votes(self, acceptingVotes, effects):
         self.acceptingVotes = acceptingVotes
 
-        options = self.getOptions()
         self.votes = {
-            str(index + 1): {"votes": set(), "name": value}
-            for index, value in enumerate(options)
+            str(index + 1): {"votes": set(), "name": effect.name, "effect": effect}
+            for index, effect in enumerate(effects)
         }
 
         if self.messageHandler:
@@ -50,6 +38,19 @@ class TwitchBot(commands.Bot):
                 }
             )
 
+    def get_effect(self):
+        max_value = -1
+        results = {}
+        for (key, value) in self.votes.items():
+            count = len(value["votes"])
+            if count > max_value:
+                results = {}
+                max_value = count
+            if count == max_value:
+                results[key] = value
+        result = results[random.choice(list(results.keys()))]
+        return result["effect"]
+
     async def event_ready(self):
         self.debug_logger.info(f"TwitchBot: Logged onto Twitch WS as {self.nick}")
         self.debug_logger.info(f"TwitchBot: Listening in on {self.channel}'s chat")
@@ -59,7 +60,6 @@ class TwitchBot(commands.Bot):
             return
 
         author = message.author
-        # content = str(random.randint(1, 3))
         content = message.content
 
         self.chat_logger.info(f"{author.name}: {content}")
