@@ -1,9 +1,8 @@
 import asyncio
 
+from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, PointerAddress
 from ChaosHandler.Effect import BaseEffect
 from pymem import memory
-
-from ..Memory import BaseAddress, get_pointer_address
 
 
 class Sliding(BaseEffect):
@@ -12,10 +11,10 @@ class Sliding(BaseEffect):
     @classmethod
     async def start(cls, pm, module):
         BaseX = BaseAddress.BaseX(pm, module)
-        slide_ptr = get_pointer_address(pm, BaseX, [0x68, 0x68, 0x48, 0x45C])
+        SlidePointer = PointerAddress.Slide(pm, BaseX)
 
         seconds_passed = 0
         while seconds_passed < cls.seconds:
             seconds_passed = seconds_passed + 1
-            memory.write_bytes(pm.process_handle, slide_ptr, b"\x01", 1)
+            memory.write_bytes(pm.process_handle, SlidePointer, b"\x01", 1)
             await asyncio.sleep(1)

@@ -1,9 +1,8 @@
 import asyncio
 
+from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, PointerAddress
 from ChaosHandler.Effect import BaseEffect
 from pymem import memory
-
-from ..Memory import BaseAddress, get_pointer_address
 
 
 class LowerDrawDistance(BaseEffect):
@@ -12,8 +11,8 @@ class LowerDrawDistance(BaseEffect):
     @classmethod
     async def start(cls, pm, module):
         BaseCAR = BaseAddress.BaseCAR(pm, module)
-        drawdistance_ptr = get_pointer_address(pm, BaseCAR, [0x60, 0x60, 0x5C])
+        DrawDistancePointer = PointerAddress.DrawDistance(pm, BaseCAR)
 
-        memory.write_float(pm.process_handle, drawdistance_ptr, 10)
+        memory.write_float(pm.process_handle, DrawDistancePointer, 10)
         await asyncio.sleep(cls.seconds)
-        memory.write_float(pm.process_handle, drawdistance_ptr, 3100)
+        memory.write_float(pm.process_handle, DrawDistancePointer, 3100)
