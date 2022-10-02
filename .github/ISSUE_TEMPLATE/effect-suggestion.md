@@ -1,6 +1,6 @@
 ---
 name: Effect Suggestion
-about: Suggest an effect to add.
+about: Suggest an effect to add
 title: "[Effect Suggestion] My effect"
 labels: Effect Suggestion
 assignees: ''
