@@ -15,4 +15,4 @@ class TinyHead(BaseEffect):
 
         memory.write_float(pm.process_handle, HeadPointer, -10)
         await asyncio.sleep(cls.seconds)
-        memory.write_bytes(pm.process_handle, HeadPointer, 0)
+        memory.write_float(pm.process_handle, HeadPointer, 0)
