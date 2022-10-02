@@ -1,9 +1,9 @@
 import asyncio
 
 from ChaosHandler.Effect import BaseEffect
-from pymem import memory, pattern
+from pymem import memory
 
-from ..Memory import AOBS, get_pointer_address
+from ..Memory import BaseAddress, get_pointer_address
 
 
 class Blind(BaseEffect):
@@ -11,9 +11,7 @@ class Blind(BaseEffect):
 
     @classmethod
     async def start(cls, pm, module):
-        GetCAR = pattern.pattern_scan_module(pm.process_handle, module, AOBS.BaseCAR)
-        BaseCAR = GetCAR + pm.read_int(GetCAR + 3) + 7
-
+        BaseCAR = BaseAddress.BaseCAR(pm, module)
         drawdistance_ptr = get_pointer_address(pm, BaseCAR, [0x60, 0x60, 0x5C])
 
         memory.write_float(pm.process_handle, drawdistance_ptr, 1)

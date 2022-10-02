@@ -1,7 +1,7 @@
 from ChaosHandler.Effect import BaseEffect
-from pymem import memory, pattern
+from pymem import memory
 
-from ..Memory import AOBS, packBytes
+from ..Memory import BaseAddress, packBytes
 
 
 class WarpToBonfire(BaseEffect):
@@ -9,12 +9,8 @@ class WarpToBonfire(BaseEffect):
 
     @classmethod
     async def start(cls, pm, module):
-        GetB = pattern.pattern_scan_module(pm.process_handle, module, AOBS.BaseB)
-        BaseB = GetB + pm.read_int(GetB + 3) + 7
-
-        HomewardCall = pattern.pattern_scan_module(
-            pm.process_handle, module, AOBS.HomewardCall
-        )
+        BaseB = BaseAddress.BaseB(pm, module)
+        HomewardCall = BaseAddress.HomewardCall(pm, module)
 
         shellcode = bytearray(b"\x48\xB9" + packBytes(BaseB))  # movabs rcx, [BaseB]
         shellcode.extend(b"\xBA\x01\x00\x00\x00")  # mov edx, 1

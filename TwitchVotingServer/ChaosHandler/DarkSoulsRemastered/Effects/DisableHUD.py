@@ -1,9 +1,9 @@
 import asyncio
 
 from ChaosHandler.Effect import BaseEffect
-from pymem import memory, pattern
+from pymem import memory
 
-from ..Memory import AOBS, get_pointer_address
+from ..Memory import BaseAddress, get_pointer_address
 
 
 class DisableHUD(BaseEffect):
@@ -11,9 +11,7 @@ class DisableHUD(BaseEffect):
 
     @classmethod
     async def start(cls, pm, module):
-        GetB = pattern.pattern_scan_module(pm.process_handle, module, AOBS.BaseB)
-        BaseB = GetB + pm.read_int(GetB + 3) + 7
-
+        BaseB = BaseAddress.BaseB(pm, module)
         hud_ptr = get_pointer_address(pm, BaseB, [0x58, 0x11])
 
         memory.write_bytes(pm.process_handle, hud_ptr, b"\x00", 1)

@@ -1,9 +1,9 @@
 import asyncio
 
 from ChaosHandler.Effect import BaseEffect
-from pymem import memory, pattern
+from pymem import memory
 
-from ..Memory import AOBS, get_pointer_address
+from ..Memory import BaseAddress, get_pointer_address
 
 
 class Sliding(BaseEffect):
@@ -11,9 +11,7 @@ class Sliding(BaseEffect):
 
     @classmethod
     async def start(cls, pm, module):
-        GetX = pattern.pattern_scan_module(pm.process_handle, module, AOBS.BaseX)
-        BaseX = GetX + pm.read_int(GetX + 3) + 7
-
+        BaseX = BaseAddress.BaseX(pm, module)
         slide_ptr = get_pointer_address(pm, BaseX, [0x68, 0x68, 0x48, 0x45C])
 
         seconds_passed = 0
