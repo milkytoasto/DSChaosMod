@@ -41,10 +41,8 @@ class VotingHandler:
 
         loop = asyncio.get_event_loop()
 
-        self.event = asyncio.Event()
-
         twitch_task = loop.create_task(self.bot.start())
-        effect_task = asyncio.ensure_future(self.effect_controller())
+        effect_task = asyncio.ensure_future(self.chaosHandler.effect_controller())
         voting_task = loop.create_task(self.voting_controller())
 
         tasks = [twitch_task, effect_task, voting_task]
@@ -58,15 +56,6 @@ class VotingHandler:
 
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
-    async def effect_controller(self):
-        self.chaosHandler.hook()
-        while True:
-            await self.event.wait()
-            self.debug_logger.info(f"Triggering {self.current_effect.name} effect")
-            self.current_effect.seconds = self.effectDuration
-            await self.chaosHandler.trigger_effect(self.current_effect)
-            self.event.clear()
-
     async def voting_controller(self):
         self.running = True
         self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
@@ -77,7 +66,11 @@ class VotingHandler:
             if self.remainingTime == 0:
                 if self.acceptingVotes:
                     self.current_effect = self.bot.get_effect()
-                    self.event.set()
+                    self.current_effect.seconds = self.effectDuration
+                    self.debug_logger.info(
+                        f"Triggering {self.current_effect.name} effect"
+                    )
+                    self.chaosHandler.trigger_effect(self.current_effect)
 
                 self.acceptingVotes = not self.acceptingVotes
                 self.remainingTime = (
