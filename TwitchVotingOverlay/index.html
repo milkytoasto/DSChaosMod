@@ -7,19 +7,23 @@
     <title>Client</title>
     <link rel="stylesheet" href="styles.css" />
     <script>
-      function connect() {
+      let timeout = 250;
+      const connect = () => {
         const ws = new WebSocket('ws://localhost:7890');
 
-        ws.onopen = () => console.log('Connected');
+        ws.onopen = () => {
+          console.log('Connected');
+          timeout = 250;
+        };
 
-        ws.onclose = function (e) {
+        ws.onclose = (e) => {
           console.log(
-            'Socket is closed. Reconnect will be attempted in 1 second.',
+            `Socket is closed. Reconnect will be attempted in ${
+              Math.min(10000, timeout) / 1000
+            } seconds.`,
             e.reason,
           );
-          setTimeout(function () {
-            connect();
-          }, 1000);
+          setTimeout(connect(), Math.min(10000, (timeout += timeout)));
         };
 
         ws.onmessage = (message) => {
@@ -74,7 +78,7 @@
             options.style.display = 'none';
           }
         };
-      }
+      };
 
       connect();
     </script>
