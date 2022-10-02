@@ -7,59 +7,76 @@
     <title>Client</title>
     <link rel="stylesheet" href="styles.css" />
     <script>
-      const ws = new WebSocket('ws://localhost:7890');
+      function connect() {
+        const ws = new WebSocket('ws://localhost:7890');
 
-      ws.onopen = () => console.log('Connected');
+        ws.onopen = () => console.log('Connected');
 
-      ws.onmessage = (message) => {
-        const data = JSON.parse(message.data);
-        const acceptingVotes = data['ACCEPTING_VOTES'];
-        const remainingTime = data['REMAINING_TIME'];
-        const duration = data['DURATION'];
+        ws.onclose = function (e) {
+          console.log(
+            'Socket is closed. Reconnect will be attempted in 1 second.',
+            e.reason,
+          );
+          setTimeout(function () {
+            connect();
+          }, 1000);
+        };
 
-        const votes = data['VOTES'];
+        ws.onmessage = (message) => {
+          const data = JSON.parse(message.data);
+          const acceptingVotes = data['ACCEPTING_VOTES'];
+          const remainingTime = data['REMAINING_TIME'];
+          const duration = data['DURATION'];
 
-        const options = document.getElementById('options');
-        const timeBarValue = document.getElementById('time-bar-value');
-        const timerBarText = document.getElementById('time-bar-text');
-        const firstValue = document.getElementById('first-bar-value');
-        const secondValue = document.getElementById('second-bar-value');
-        const thirdValue = document.getElementById('third-bar-value');
-        const firstText = document.getElementById('first-bar-text');
-        const secondText = document.getElementById('second-bar-text');
-        const thirdText = document.getElementById('third-bar-text');
+          const votes = data['VOTES'];
 
-        timeBarValue.style.width = (remainingTime / duration) * 100 + '%';
-        if (acceptingVotes) {
-          timerBarText.innerText = `${remainingTime} of ${duration} seconds remaining in current voting period.`;
-        } else {
-          timerBarText.innerText = `${remainingTime} of ${duration} seconds remaining until next voting period.`;
-        }
+          const options = document.getElementById('options');
+          const timeBarValue = document.getElementById('time-bar-value');
+          const timerBarText = document.getElementById('time-bar-text');
+          const firstValue = document.getElementById('first-bar-value');
+          const secondValue = document.getElementById('second-bar-value');
+          const thirdValue = document.getElementById('third-bar-value');
+          const firstText = document.getElementById('first-bar-text');
+          const secondText = document.getElementById('second-bar-text');
+          const thirdText = document.getElementById('third-bar-text');
 
-        let totalVotes = 0;
-        for (option in votes) {
-          totalVotes += votes[option].count;
-        }
+          timeBarValue.style.width = (remainingTime / duration) * 100 + '%';
+          if (acceptingVotes) {
+            timerBarText.innerText = `${remainingTime} of ${duration} seconds remaining in current voting period.`;
+          } else {
+            timerBarText.innerText = `${remainingTime} of ${duration} seconds remaining until next voting period.`;
+          }
 
-        if (acceptingVotes) {
-          options.style.display = 'inline-block';
+          let totalVotes = 0;
+          for (option in votes) {
+            totalVotes += votes[option].count;
+          }
 
-          firstValue.style.width = (votes['1'].count / totalVotes) * 100 + '%';
-          firstValue.ariaValueNow = votes['1'].count;
+          if (acceptingVotes) {
+            options.style.display = 'inline-block';
 
-          secondValue.style.width = (votes['2'].count / totalVotes) * 100 + '%';
-          secondValue.ariaValueNow = votes['2'].count;
+            firstValue.style.width =
+              (votes['1'].count / totalVotes) * 100 + '%';
+            firstValue.ariaValueNow = votes['1'].count;
 
-          thirdValue.style.width = (votes['3'].count / totalVotes) * 100 + '%';
-          thirdValue.ariaValueNow = votes['3'].count;
+            secondValue.style.width =
+              (votes['2'].count / totalVotes) * 100 + '%';
+            secondValue.ariaValueNow = votes['2'].count;
 
-          firstText.innerText = `1 - ${votes['1'].name}`;
-          secondText.innerText = `2 - ${votes['2'].name}`;
-          thirdText.innerText = `3 - ${votes['3'].name}`;
-        } else {
-          options.style.display = 'none';
-        }
-      };
+            thirdValue.style.width =
+              (votes['3'].count / totalVotes) * 100 + '%';
+            thirdValue.ariaValueNow = votes['3'].count;
+
+            firstText.innerText = `1 - ${votes['1'].name}`;
+            secondText.innerText = `2 - ${votes['2'].name}`;
+            thirdText.innerText = `3 - ${votes['3'].name}`;
+          } else {
+            options.style.display = 'none';
+          }
+        };
+      }
+
+      connect();
     </script>
   </head>
   <body>
