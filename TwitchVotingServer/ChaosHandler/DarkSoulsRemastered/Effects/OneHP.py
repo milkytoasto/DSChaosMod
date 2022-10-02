@@ -10,4 +10,6 @@ class OneHP(BaseEffect):
     async def start(cls, pm, module):
         BaseX = BaseAddress.BaseX(pm, module)
         HealthPointer = PointerAddress.PlayerHP(pm, BaseX)
-        memory.write_float(pm.process_handle, HealthPointer, 1)
+        memory.write_bytes(
+            pm.process_handle, HealthPointer, (1).to_bytes(4, "little"), 4
+        )
