@@ -1,6 +1,6 @@
 ---
 name: Effect Suggestion
-about: Describe this issue template's purpose here.
+about: Suggest an effect to add.
 title: "[Effect Suggestion] My effect"
 labels: Effect Suggestion
 assignees: ''
