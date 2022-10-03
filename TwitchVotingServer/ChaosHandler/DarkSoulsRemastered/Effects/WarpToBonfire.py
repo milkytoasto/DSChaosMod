@@ -7,7 +7,7 @@ class WarpToBonfire(BaseEffect):
     name = "Warp to Bonfire"
 
     @classmethod
-    async def start(cls, pm, module):
+    async def onStart(cls, pm, module):
         BaseB = BaseAddress.BaseB(pm, module)
         HomewardCall = BaseAddress.HomewardCall(pm, module)
 
