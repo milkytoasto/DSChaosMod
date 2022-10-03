@@ -25,7 +25,10 @@ class ChaosHandler:
         self.hook()
         while True:
             await self.event.wait()
-            await self.current_effect.start(self.pm, self.module)
+            try:
+                await self.current_effect.start(self.pm, self.module)
+            finally:
+                await self.current_effect.stop(self.pm, self.module)
             self.event.clear()
 
     def hook(self):
