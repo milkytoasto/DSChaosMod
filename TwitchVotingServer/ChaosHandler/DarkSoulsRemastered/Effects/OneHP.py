@@ -7,7 +7,7 @@ class OneHP(BaseEffect):
     name = "1 HP"
 
     @classmethod
-    async def start(cls, pm, module):
+    async def onStart(cls, pm, module):
         BaseX = BaseAddress.BaseX(pm, module)
         HealthPointer = PointerAddress.PlayerHP(pm, BaseX)
         memory.write_bytes(

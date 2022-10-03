@@ -9,7 +9,7 @@ class Sliding(BaseEffect):
     name = "Sliding"
 
     @classmethod
-    async def start(cls, pm, module):
+    async def onStart(cls, pm, module):
         BaseX = BaseAddress.BaseX(pm, module)
         SlidePointer = PointerAddress.Slide(pm, BaseX)
 
