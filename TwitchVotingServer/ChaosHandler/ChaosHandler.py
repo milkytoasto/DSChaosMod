@@ -15,14 +15,17 @@ class NoProcessFoundError(Exception):
 class ChaosHandler:
     def __init__(self):
         self.event = asyncio.Event()
+        self.game = None
 
     def get_options(self):
+        if self.game is None:
+            return []
+
         effect_options = self.game.effects
         self.sampled_options = random.sample(effect_options, k=3)
         return self.sampled_options
 
     async def effect_controller(self):
-        self.hook()
         while True:
             await self.event.wait()
             try:
@@ -35,7 +38,7 @@ class ChaosHandler:
         self.__find_process()
 
         if self.process_title is None:
-            raise NoProcessFoundError
+            raise NoProcessFoundError(f"No suitable process found.")
 
         try:
             pm = Pymem(self.process_title)

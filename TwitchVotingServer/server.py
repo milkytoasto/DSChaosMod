@@ -17,7 +17,7 @@ if __name__ == "__main__":
     vh = VotingHandler(configHandler=ch, chaosHandler=chaos, websocketHandler=wsh)
 
     gui = ServerGUI("Dark Souls Chaos Server", websocket_server=wsh.websocket_server)
-    gui.init_commands(start=lambda: vh.start(), pause=vh.pause, stop=vh.stop)
+    gui.init_commands(start=lambda: vh.start(gui.stopped), pause=vh.pause, stop=vh.stop)
 
     gui.init_settings_tab(
         saveHandler=lambda fields: [ch.save_config(fields), vh.load_config()],
