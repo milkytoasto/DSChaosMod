@@ -2,6 +2,8 @@ import asyncio
 import json
 import logging
 
+from ChaosHandler.ChaosHandler import NoProcessFoundError
+
 from .TwitchBot import TwitchBot
 
 
@@ -22,7 +24,7 @@ class VotingHandler:
         self.load_config()
         self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
 
-    async def start(self):
+    async def start(self, stopped):
 
         self.debug_logger = logging.getLogger("debug")
         chat_logger = logging.getLogger("chat")
@@ -41,17 +43,31 @@ class VotingHandler:
 
         loop = asyncio.get_event_loop()
 
-        twitch_task = loop.create_task(self.bot.start())
-        effect_task = asyncio.ensure_future(self.chaosHandler.effect_controller())
-        voting_task = loop.create_task(self.voting_controller())
+        try:
+            self.chaosHandler.hook()
+        except NoProcessFoundError as e:
+            self.debug_logger.error(f"EXCEPTION: {e}")
+            stopped()
+            return
+
+        twitch_task = loop.create_task(self.bot.start(), name="Twitch Task")
+        voting_task = loop.create_task(self.voting_controller(), name="Voting Task")
+        effect_task = loop.create_task(
+            self.chaosHandler.effect_controller(), name="Effects Task"
+        )
 
         tasks = [twitch_task, effect_task, voting_task]
         done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
 
+        self.debug_logger.info(
+            f"{len(done)} tasks exited. Cancelling {len(pending)} tasks "
+        )
+
+        for d in done:
+            self.debug_logger.info(f"{d.get_name()} is done.")
+
         for p in pending:
-            self.debug_logger.info(
-                f"{len(done)} tasks exited. Cancelling {len(pending)} tasks "
-            )
+            self.debug_logger.info(f"Cancelling {p.get_name()}.")
             p.cancel()
 
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
