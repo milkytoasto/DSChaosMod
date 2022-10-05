@@ -27,17 +27,6 @@ class TwitchBot(commands.Bot):
             for index, effect in enumerate(effects)
         }
 
-        if self.messageHandler:
-            self.messageHandler(
-                {
-                    index: {
-                        "count": len(self.votes[index]["votes"]),
-                        "name": self.votes[index]["name"],
-                    }
-                    for index in self.votes.keys()
-                }
-            )
-
     def get_effect(self):
         max_value = -1
         results = {}
@@ -55,6 +44,15 @@ class TwitchBot(commands.Bot):
         self.debug_logger.info(f"TwitchBot: Logged onto Twitch WS as {self.nick}")
         self.debug_logger.info(f"TwitchBot: Listening in on {self.channel}'s chat")
 
+    def format_votes(self):
+        return {
+            index: {
+                "count": len(self.votes[index]["votes"]),
+                "name": self.votes[index]["name"],
+            }
+            for index in self.votes.keys()
+        }
+
     async def event_message(self, message):
         if message.echo:
             return
@@ -66,14 +64,3 @@ class TwitchBot(commands.Bot):
 
         if self.acceptingVotes and content in self.votes.keys():
             self.votes[content]["votes"].add(message.author.name)
-
-            if self.messageHandler:
-                self.messageHandler(
-                    {
-                        index: {
-                            "count": len(self.votes[index]["votes"]),
-                            "name": self.votes[index]["name"],
-                        }
-                        for index in self.votes.keys()
-                    }
-                )

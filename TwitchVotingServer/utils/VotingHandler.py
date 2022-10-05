@@ -14,6 +14,7 @@ class VotingHandler:
         self.websocketHandler = websocketHandler
         self.chaosHandler = chaosHandler
         self.configHandler = configHandler
+        self.debug_logger = logging.getLogger("debug")
         self.load_config()
 
     def pause(self):
@@ -25,10 +26,6 @@ class VotingHandler:
         self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
 
     async def start(self, stopped):
-
-        self.debug_logger = logging.getLogger("debug")
-        chat_logger = logging.getLogger("chat")
-
         if self.running:
             self.debug_logger.error("Already running.")
             return
@@ -37,11 +34,9 @@ class VotingHandler:
             token=self.configHandler.get_token(),
             channel=self.configHandler.get_channel(),
             debug_logger=self.debug_logger,
-            chat_logger=chat_logger,
+            chat_logger=logging.getLogger("chat"),
             messageHandler=self.broadcast_votes,
         )
-
-        loop = asyncio.get_event_loop()
 
         try:
             self.chaosHandler.hook()
@@ -50,6 +45,7 @@ class VotingHandler:
             stopped()
             return
 
+        loop = asyncio.get_event_loop()
         twitch_task = loop.create_task(self.bot.start(), name="Twitch Task")
         voting_task = loop.create_task(self.voting_controller(), name="Voting Task")
         effect_task = loop.create_task(
@@ -70,6 +66,7 @@ class VotingHandler:
             self.debug_logger.info(f"Cancelling {p.get_name()}.")
             p.cancel()
 
+        stopped()
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
     async def voting_controller(self):
@@ -96,7 +93,7 @@ class VotingHandler:
                     self.acceptingVotes, self.chaosHandler.get_options()
                 )
             else:
-                self.broadcast_votes(self.votes)
+                self.broadcast_votes(self.bot.format_votes())
 
             self.remainingTime -= 1
 
