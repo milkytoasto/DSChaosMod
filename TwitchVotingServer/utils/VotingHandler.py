@@ -67,6 +67,7 @@ class VotingHandler:
             p.cancel()
 
         stopped()
+        self.running = False
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
     async def voting_controller(self):

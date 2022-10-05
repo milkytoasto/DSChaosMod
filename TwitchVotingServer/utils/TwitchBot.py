@@ -19,6 +19,12 @@ class TwitchBot(commands.Bot):
         self.chat_logger = chat_logger
         self.channel = channel
 
+    async def start(self):
+        try:
+            await super().start()
+        except:
+            await self._http.session.close()
+
     def init_votes(self, acceptingVotes, effects):
         self.acceptingVotes = acceptingVotes
 
