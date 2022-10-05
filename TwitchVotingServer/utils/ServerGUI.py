@@ -1,9 +1,18 @@
 import logging
 import tkinter as tk
-import tkinter.scrolledtext as st
 import tkinter.ttk as ttk
 
 from async_tkinter_loop import async_handler
+
+
+class Colors:
+    background = "#121212"
+    backgroundText = "white"
+    primary = "#1c54b2"
+    secondary = "#212121"
+    secondaryText = "white"
+    disabled = "grey"
+    border = "#2e2e2e"
 
 
 class WidgetLogger(logging.Handler):
@@ -52,10 +61,7 @@ class ServerGUI:
         root.geometry(f"{width}x{height}")
         root.minsize(width, height)
 
-        self.bgcolor = "#%02x%02x%02x" % (25, 25, 25)
-        self.buttoncolor = "#%02x%02x%02x" % (53, 53, 53)
-
-        root.tk_setPalette(self.bgcolor)
+        root.tk_setPalette(Colors.background)
 
         self.root = root
 
@@ -70,64 +76,167 @@ class ServerGUI:
     def __configure_style(self):
         self.s = ttk.Style()
         self.s.theme_use("clam")
+        self.s.layout(
+            "TEntry",
+            [
+                (
+                    "Entry.plain.field",
+                    {
+                        "children": [
+                            (
+                                "Entry.background",
+                                {
+                                    "children": [
+                                        (
+                                            "Entry.padding",
+                                            {
+                                                "children": [
+                                                    (
+                                                        "Entry.textarea",
+                                                        {"sticky": "nswe"},
+                                                    )
+                                                ],
+                                                "sticky": "nswe",
+                                            },
+                                        )
+                                    ],
+                                    "sticky": "nswe",
+                                },
+                            )
+                        ],
+                        "border": "2",
+                        "sticky": "nswe",
+                    },
+                )
+            ],
+        )
+        self.s.configure(
+            "TEntry",
+            foreground=Colors.backgroundText,
+            background=Colors.background,
+            fieldbackground=Colors.background,
+            bordercolor=Colors.border,
+            lightcolor=Colors.border,
+            darkcolor=Colors.border,
+        )
+
         self.s.configure(
             "TButton",
-            background=self.buttoncolor,
-            foreground="white",
+            background=Colors.secondary,
+            foreground=Colors.secondaryText,
             borderwidth=1,
-            focusthickness=3,
+            bordercolor=Colors.border,
+            lightcolor=Colors.border,
+            darkcolor=Colors.border,
+            focusthickness=1,
             focuscolor="none",
         )
+        self.s.map(
+            "TButton",
+            background=[
+                ("selected", Colors.primary),
+                ("active", Colors.primary),
+                ("disabled", Colors.disabled),
+            ],
+        )
+
         self.s.configure(
             "TFrame",
-            background=self.buttoncolor,
-            foreground="white",
+            background=Colors.secondary,
+            foreground=Colors.secondaryText,
             borderwidth=0,
+            bordercolor=Colors.border,
+            lightcolor=Colors.border,
+            darkcolor=Colors.border,
             focusthickness=3,
             focuscolor="none",
         )
+
+        self.s.configure(
+            "TLabelframe",
+            background=Colors.background,
+            bordercolor=Colors.border,
+            lightcolor=Colors.border,
+            darkcolor=Colors.border,
+            labeloutside=False,
+        )
+        self.s.configure(
+            "TLabelframe.Label",
+            background=Colors.background,
+            foreground=Colors.backgroundText,
+        )
+
+        self.s.configure(
+            "TLabel", background=Colors.secondary, foreground=Colors.secondaryText
+        )
+
+        self.s.layout(
+            "Vertical.TScrollbar",
+            [
+                (
+                    "Vertical.Scrollbar.trough",
+                    {
+                        "children": [("Vertical.Scrollbar.thumb", {"expand": "1"})],
+                        "sticky": "ns",
+                    },
+                )
+            ],
+        )
+        self.s.configure("Vertical.TScrollbar", background=Colors.primary, gripcount=0)
+        self.s.map(
+            "Vertical.TScrollbar",
+            background=[("active", Colors.primary), ("disabled", Colors.primary)],
+        )
+
         self.s.configure(
             "TNotebook",
-            background=self.bgcolor,
-            foreground="white",
+            background=Colors.background,
+            foreground=Colors.backgroundText,
             borderwidth=0,
-            focusthickness=3,
+            bordercolor=Colors.border,
+            lightcolor=Colors.border,
+            darkcolor=Colors.border,
+            focusthickness=0,
             focuscolor="none",
+        )
+        self.s.map(
+            "TNotebook.Tab",
+            background=[
+                ("selected", Colors.primary),
+                ("active", Colors.primary),
+                ("disabled", Colors.disabled),
+            ],
         )
         self.s.configure(
             "TNotebook.Tab",
-            background=self.buttoncolor,
-            foreground="white",
-            borderwidth=0,
-            focusthickness=3,
+            background=Colors.secondary,
+            foreground=Colors.secondaryText,
+            bordercolor=Colors.border,
+            lightcolor=Colors.border,
+            darkcolor=Colors.border,
             focuscolor="none",
-        )
-        self.s.configure("TLabel", background=self.buttoncolor, foreground="white")
-        self.s.map(
-            "TButton", background=[("active", self.bgcolor), ("disabled", "gray")]
-        )
-        self.s.map(
-            "TNotebook.Tab", background=[("active", self.bgcolor), ("disabled", "gray")]
         )
 
     def stopped(self):
-        self.twButton["state"] = "active"
+        self.twButton["state"] = "normal"
         self.stButton["state"] = "disabled"
         self.psButton["state"] = "disabled"
 
     def paused(self):
-        self.twButton["state"] = "active"
-        self.stButton["state"] = "active"
+        self.twButton["state"] = "normal"
+        self.stButton["state"] = "normal"
         self.psButton["state"] = "disabled"
 
     def started(self):
         self.twButton["state"] = "disabled"
-        self.stButton["state"] = "active"
-        self.psButton["state"] = "active"
+        self.stButton["state"] = "normal"
+        self.psButton["state"] = "normal"
 
     def __init_frames(self):
-        self.top_frame = tk.Frame(self.root, width=450, height=50, pady=8, padx=8)
-        self.top_frame.grid(row=0, sticky=tk.W)
+        self.top_frame = ttk.LabelFrame(
+            self.root, text="Actions", width=450, height=50, padding=[8, 0, 8, 8]
+        )
+        self.top_frame.grid(row=0, pady=8, padx=8, sticky=tk.W)
 
         self.bottom_frame = tk.Frame(self.root, pady=8, padx=8)
         self.bottom_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
@@ -138,17 +247,17 @@ class ServerGUI:
             text="Connect to Twitch",
             command=lambda: [async_handler(start)(), self.started()],
         )
-        self.twButton.grid(row=0, column=1, padx=8)
+        self.twButton.grid(row=0, column=1, padx=0)
 
         self.psButton = ttk.Button(
             self.top_frame, text="Pause", command=lambda: [pause(), self.paused()]
         )
-        self.psButton.grid(row=0, column=2)
+        self.psButton.grid(row=0, column=2, padx=8)
 
         self.stButton = ttk.Button(
             self.top_frame, text="Stop", command=lambda: [stop(), self.stopped()]
         )
-        self.stButton.grid(row=0, column=3, padx=8)
+        self.stButton.grid(row=0, column=3)
         self.stopped()
 
     def __init_tabs(self):
@@ -171,9 +280,13 @@ class ServerGUI:
             level=logging.INFO,
         )
 
-        text = st.ScrolledText(tab, height=15)
-        text.configure(state="disabled")
-        text.pack(fill="both", expand="true")
+        scrollbar = ttk.Scrollbar(tab, orient="vertical")
+        scrollbar.pack(side=tk.RIGHT, fill=tk.BOTH)
+
+        text = tk.Text(
+            tab, width=15, height=15, wrap="none", yscrollcommand=scrollbar.set
+        )
+        text.pack(side=tk.LEFT, fill=tk.BOTH, expand="true")
 
         logger = logging.getLogger(name)
         text_handler = WidgetLogger(text)
