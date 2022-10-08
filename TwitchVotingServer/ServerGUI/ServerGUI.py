@@ -4,53 +4,8 @@ import tkinter.ttk as ttk
 
 from async_tkinter_loop import async_handler
 
-
-class Colors:
-    background = "#121212"
-    backgroundText = "white"
-
-    primary = "#1c54b2"
-    primaryText = "white"
-
-    secondary = "#212121"
-    secondaryText = "white"
-
-    disabled = "grey"
-    disabledText = "white"
-
-    border = "#2e2e2e"
-
-
-class WidgetLogger(logging.Handler):
-    """
-    This implementation is based on the solutions
-    provided at this stackoverflow question:
-
-    https://stackoverflow.com/questions/13318742/python-logging-to-tkinter-text-widget
-    """
-
-    def __init__(self, widget, level=logging.INFO):
-        logging.Handler.__init__(self)
-        self.setLevel(level)
-        self.setFormatter(
-            logging.Formatter("[%(asctime)s]: %(message)s", datefmt="%d-%b-%y %H:%M:%S")
-        )
-        self.widget = widget
-        self.widget.config(state="disabled")
-        self.widget.tag_config("INFO", foreground="white")
-        self.widget.tag_config("DEBUG", foreground="white", background="grey")
-        self.widget.tag_config("WARNING", foreground="orange")
-        self.widget.tag_config("ERROR", foreground="red")
-        self.widget.tag_config("CRITICAL", foreground="red", underline=1)
-        self.red = self.widget.tag_configure("red", foreground="red")
-
-    def emit(self, record):
-        self.widget.config(state="normal")
-        # Append message (record) to the widget
-        self.widget.insert(tk.END, self.format(record) + "\n", record.levelname)
-        self.widget.see(tk.END)  # Scroll to the bottom
-        self.widget.config(state="disabled")
-        self.widget.update()  # Refresh the widget
+from .Theming.Colors import Colors
+from .utils.WidgetLogger import WidgetLogger
 
 
 class ServerGUI:
@@ -250,26 +205,26 @@ class ServerGUI:
         self.stopButton["state"] = "disabled"
         self.pauseButton["state"] = "disabled"
 
-    def stopped(self):
+    def started(self):
         self.connectButton["state"] = "disabled"
-        self.disconnectButton["state"] = "disabled"
-        self.startButton["state"] = "normal"
-        self.stopButton["state"] = "disabled"
-        self.pauseButton["state"] = "disabled"
+        self.disconnectButton["state"] = "normal"
+        self.startButton["state"] = "disabled"
+        self.stopButton["state"] = "normal"
+        self.pauseButton["state"] = "normal"
 
     def paused(self):
         self.connectButton["state"] = "normal"
-        self.disconnectButton["state"] = "disabled"
+        self.disconnectButton["state"] = "normal"
         self.startButton["state"] = "normal"
         self.stopButton["state"] = "normal"
         self.pauseButton["state"] = "disabled"
 
-    def started(self):
+    def stopped(self):
         self.connectButton["state"] = "disabled"
-        self.disconnectButton["state"] = "disabled"
+        self.disconnectButton["state"] = "normal"
         self.startButton["state"] = "normal"
-        self.stopButton["state"] = "normal"
-        self.pauseButton["state"] = "normal"
+        self.stopButton["state"] = "disabled"
+        self.pauseButton["state"] = "disabled"
 
     def __init_frames(self):
         self.actions_frame = ttk.LabelFrame(
@@ -280,7 +235,7 @@ class ServerGUI:
         self.tabs_frame = tk.Frame(self.root, pady=8, padx=8)
         self.tabs_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
-    def init_commands(self, connect, start, pause, stop):
+    def init_commands(self, connect, disconnect, start, pause, stop):
         self.connectButton = ttk.Button(
             self.actions_frame,
             text="Connect to Twitch",
@@ -289,7 +244,7 @@ class ServerGUI:
         self.disconnectButton = ttk.Button(
             self.actions_frame,
             text="Disconnect",
-            command=lambda: [self.disconnected()],
+            command=lambda: [async_handler(disconnect)(), self.disconnected()],
         )
         self.startButton = ttk.Button(
             self.actions_frame,

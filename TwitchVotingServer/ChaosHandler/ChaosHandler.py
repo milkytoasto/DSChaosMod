@@ -16,6 +16,7 @@ class ChaosHandler:
     def __init__(self):
         self.event = asyncio.Event()
         self.game = None
+        self.sampled_options = None
 
     def get_options(self):
         if self.game is None:
@@ -24,6 +25,11 @@ class ChaosHandler:
         effect_options = self.game.effects
         self.sampled_options = random.sample(effect_options, k=3)
         return self.sampled_options
+
+    def get_existing_options(self):
+        if self.sampled_options is not None:
+            return self.sampled_options
+        return self.get_options()
 
     async def effect_controller(self):
         while True:

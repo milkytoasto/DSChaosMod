@@ -2,9 +2,8 @@ import asyncio
 import json
 import logging
 
+from Bots.TwitchBot import TwitchBot
 from ChaosHandler.ChaosHandler import NoProcessFoundError
-
-from .TwitchBot import TwitchBot
 
 
 class VotingHandler:
@@ -18,10 +17,12 @@ class VotingHandler:
         self.debug_logger = logging.getLogger("debug")
         self.load_config()
 
-    async def connect(self, stopped):
+    async def connect(self):
         if self.connected:
             self.debug_logger.error("Already connected.")
             return
+
+        self.connected = True
 
         self.bot = TwitchBot(
             token=self.configHandler.get_token(),
@@ -52,9 +53,11 @@ class VotingHandler:
             self.debug_logger.info(f"Cancelling {p.get_name()}.")
             p.cancel()
 
-        stopped()
         self.connected = False
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
+
+    async def disconnect(self):
+        await self.bot.close()
 
     def start(self, stopped):
         try:
@@ -67,16 +70,16 @@ class VotingHandler:
         self.enabled.set()
 
     def pause(self):
-        self.connected = False
+        self.enabled.clear()
 
     def stop(self):
         self.enabled.clear()
-        self.connected = False
         self.load_config()
-        self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
+        self.bot.init_votes(
+            self.acceptingVotes, self.chaosHandler.get_existing_options()
+        )
 
     async def voting_controller(self):
-        self.connected = True
         self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
 
         while self.connected:
