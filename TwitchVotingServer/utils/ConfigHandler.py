@@ -5,8 +5,7 @@ class ConfigHandler:
     def save_config(self, fields):
         for section in fields:
             for option in fields[section]:
-                value = fields[section][option].get()
-                if value:
+                if value := fields[section][option].get():
                     self.config.set(section, option, value)
 
         with open("config.ini", "w") as configfile:
