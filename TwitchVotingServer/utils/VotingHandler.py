@@ -9,6 +9,7 @@ from .TwitchBot import TwitchBot
 
 class VotingHandler:
     def __init__(self, configHandler, chaosHandler, websocketHandler):
+        self.enabled = asyncio.Event()
         self.running = False
         self.votes = {}
         self.websocketHandler = websocketHandler
@@ -17,15 +18,7 @@ class VotingHandler:
         self.debug_logger = logging.getLogger("debug")
         self.load_config()
 
-    def pause(self):
-        self.running = False
-
-    def stop(self):
-        self.running = False
-        self.load_config()
-        self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
-
-    async def start(self, stopped):
+    async def connect(self, stopped):
         if self.running:
             self.debug_logger.error("Already running.")
             return
@@ -37,13 +30,6 @@ class VotingHandler:
             chat_logger=logging.getLogger("chat"),
             messageHandler=self.broadcast_votes,
         )
-
-        try:
-            self.chaosHandler.hook()
-        except NoProcessFoundError as e:
-            self.debug_logger.error(f"EXCEPTION: {e}")
-            stopped()
-            return
 
         loop = asyncio.get_event_loop()
         twitch_task = loop.create_task(self.bot.start(), name="Twitch Task")
@@ -70,11 +56,31 @@ class VotingHandler:
         self.running = False
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
+    def start(self, stopped):
+        try:
+            self.chaosHandler.hook()
+        except NoProcessFoundError as e:
+            self.debug_logger.error(f"EXCEPTION: {e}")
+            stopped()
+            return
+
+        self.enabled.set()
+
+    def pause(self):
+        self.running = False
+
+    def stop(self):
+        self.enabled.clear()
+        self.running = False
+        self.load_config()
+        self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
+
     async def voting_controller(self):
         self.running = True
         self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
 
         while self.running:
+            await self.enabled.wait()
             await asyncio.sleep(1)
 
             if self.remainingTime == 0:

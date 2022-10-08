@@ -236,6 +236,11 @@ class ServerGUI:
             ],
         )
 
+    def connected(self):
+        self.twButton["state"] = "normal"
+        self.stButton["state"] = "disabled"
+        self.psButton["state"] = "disabled"
+
     def stopped(self):
         self.twButton["state"] = "normal"
         self.stButton["state"] = "disabled"
@@ -260,23 +265,28 @@ class ServerGUI:
         self.tabs_frame = tk.Frame(self.root, pady=8, padx=8)
         self.tabs_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
-    def init_commands(self, start, pause, stop):
+    def init_commands(self, connect, start, pause, stop):
         self.twButton = ttk.Button(
             self.actions_frame,
             text="Connect to Twitch",
-            command=lambda: [async_handler(start)(), self.started()],
+            command=lambda: [async_handler(connect)(), self.connected()],
         )
-        self.twButton.grid(row=0, column=1, padx=0)
-
+        self.twButton.grid(row=0, column=0, padx=4)
+        self.startButton = ttk.Button(
+            self.actions_frame,
+            text="Start",
+            command=lambda: [start(), self.started()],
+        )
+        self.startButton.grid(row=0, column=1, padx=4)
         self.psButton = ttk.Button(
             self.actions_frame, text="Pause", command=lambda: [pause(), self.paused()]
         )
-        self.psButton.grid(row=0, column=2, padx=8)
+        self.psButton.grid(row=0, column=3, padx=4)
 
         self.stButton = ttk.Button(
             self.actions_frame, text="Stop", command=lambda: [stop(), self.stopped()]
         )
-        self.stButton.grid(row=0, column=3)
+        self.stButton.grid(row=0, column=4)
         self.stopped()
 
     def __init_tabs(self):
