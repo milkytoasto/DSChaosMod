@@ -45,42 +45,46 @@ class ServerGUI(ChaosTheme):
         self.pauseButton["state"] = "disabled"
 
     def __init_frames(self):
-        self.actions_frame = ttk.LabelFrame(
-            self.root, text="Actions", width=450, height=50, padding=[8, 0, 8, 8]
+        self.connection_actions = ttk.LabelFrame(
+            self.root, text="Connection", width=450, height=50, padding=[8, 0, 8, 8]
         )
-        self.actions_frame.grid(row=0, pady=8, padx=8, sticky=tk.W)
+        self.connection_actions.grid(row=0, pady=8, padx=8, sticky=tk.W)
+        self.voting_actions = ttk.LabelFrame(
+            self.root, text="Voting", width=450, height=50, padding=[8, 0, 8, 8]
+        )
+        self.voting_actions.grid(row=0, column=1, pady=8, padx=8, sticky=tk.W)
 
         self.tabs_frame = tk.Frame(self.root, pady=8, padx=8)
-        self.tabs_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
+        self.tabs_frame.grid(row=1, columnspan=20, sticky=tk.E + tk.W + tk.N + tk.S)
 
     def init_commands(self, connect, disconnect, start, pause, stop):
         self.connectButton = ttk.Button(
-            self.actions_frame,
+            self.connection_actions,
             text="Connect to Twitch",
             command=lambda: [async_handler(connect)(), self.connected()],
         )
         self.disconnectButton = ttk.Button(
-            self.actions_frame,
+            self.connection_actions,
             text="Disconnect",
             command=lambda: [async_handler(disconnect)(), self.disconnected()],
         )
         self.startButton = ttk.Button(
-            self.actions_frame,
+            self.voting_actions,
             text="Start",
             command=lambda: [start(), self.started()],
         )
         self.pauseButton = ttk.Button(
-            self.actions_frame, text="Pause", command=lambda: [pause(), self.paused()]
+            self.voting_actions, text="Pause", command=lambda: [pause(), self.paused()]
         )
         self.stopButton = ttk.Button(
-            self.actions_frame, text="Stop", command=lambda: [stop(), self.stopped()]
+            self.voting_actions, text="Stop", command=lambda: [stop(), self.stopped()]
         )
 
         self.connectButton.grid(row=0, column=0, padx=4)
         self.disconnectButton.grid(row=0, column=1, padx=4)
         self.startButton.grid(row=0, column=2, padx=4)
         self.pauseButton.grid(row=0, column=3, padx=4)
-        self.stopButton.grid(row=0, column=4)
+        self.stopButton.grid(row=0, column=4, padx=4)
         self.disconnected()
 
     def __init_tabs(self):
