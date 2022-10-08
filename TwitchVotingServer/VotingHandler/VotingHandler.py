@@ -2,14 +2,14 @@ import asyncio
 import json
 import logging
 
+from Bots.TwitchBot import TwitchBot
 from ChaosHandler.ChaosHandler import NoProcessFoundError
-
-from .TwitchBot import TwitchBot
 
 
 class VotingHandler:
     def __init__(self, configHandler, chaosHandler, websocketHandler):
-        self.running = False
+        self.enabled = asyncio.Event()
+        self.connected = False
         self.votes = {}
         self.websocketHandler = websocketHandler
         self.chaosHandler = chaosHandler
@@ -17,18 +17,12 @@ class VotingHandler:
         self.debug_logger = logging.getLogger("debug")
         self.load_config()
 
-    def pause(self):
-        self.running = False
-
-    def stop(self):
-        self.running = False
-        self.load_config()
-        self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
-
-    async def start(self, stopped):
-        if self.running:
-            self.debug_logger.error("Already running.")
+    async def connect(self):
+        if self.connected:
+            self.debug_logger.error("Already connected.")
             return
+
+        self.connected = True
 
         self.bot = TwitchBot(
             token=self.configHandler.get_token(),
@@ -37,13 +31,6 @@ class VotingHandler:
             chat_logger=logging.getLogger("chat"),
             messageHandler=self.broadcast_votes,
         )
-
-        try:
-            self.chaosHandler.hook()
-        except NoProcessFoundError as e:
-            self.debug_logger.error(f"EXCEPTION: {e}")
-            stopped()
-            return
 
         loop = asyncio.get_event_loop()
         twitch_task = loop.create_task(self.bot.start(), name="Twitch Task")
@@ -66,15 +53,37 @@ class VotingHandler:
             self.debug_logger.info(f"Cancelling {p.get_name()}.")
             p.cancel()
 
-        stopped()
-        self.running = False
+        self.connected = False
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
+    async def disconnect(self):
+        await self.bot.close()
+
+    def start(self, stopped):
+        try:
+            self.chaosHandler.hook()
+        except NoProcessFoundError as e:
+            self.debug_logger.error(f"EXCEPTION: {e}")
+            stopped()
+            return
+
+        self.enabled.set()
+
+    def pause(self):
+        self.enabled.clear()
+
+    def stop(self):
+        self.enabled.clear()
+        self.load_config()
+        self.bot.init_votes(
+            self.acceptingVotes, self.chaosHandler.get_existing_options()
+        )
+
     async def voting_controller(self):
-        self.running = True
         self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
 
-        while self.running:
+        while self.connected:
+            await self.enabled.wait()
             await asyncio.sleep(1)
 
             if self.remainingTime == 0:
