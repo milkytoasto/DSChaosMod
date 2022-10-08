@@ -8,10 +8,16 @@ from async_tkinter_loop import async_handler
 class Colors:
     background = "#121212"
     backgroundText = "white"
+
     primary = "#1c54b2"
+    primaryText = "white"
+
     secondary = "#212121"
     secondaryText = "white"
+
     disabled = "grey"
+    disabledText = "white"
+
     border = "#2e2e2e"
 
 
@@ -61,7 +67,11 @@ class ServerGUI:
         root.geometry(f"{width}x{height}")
         root.minsize(width, height)
 
-        root.tk_setPalette(Colors.background)
+        root.tk_setPalette(
+            background=Colors.background,
+            foreground=Colors.backgroundText,
+            highlightColor=Colors.primary,
+        )
 
         self.root = root
 
@@ -74,8 +84,28 @@ class ServerGUI:
         async_handler(websocket_server)()
 
     def __configure_style(self):
+        self.root.option_add("*font", "segoe-ui 10 bold")
+
         self.s = ttk.Style()
         self.s.theme_use("clam")
+        self.s.configure(
+            ".",
+            font=("Segoe Ui", 10, "bold"),
+            background=Colors.background,
+            foreground=Colors.backgroundText,
+            bordercolor=Colors.border,
+            lightcolor=Colors.border,
+            darkcolor=Colors.border,
+            focuscolor="none",
+            troughcolor=Colors.background,
+            selectbackground=Colors.primary,
+            selectforeground="cyan",
+            insertcolor=Colors.backgroundText,
+            fieldbackground=Colors.background,
+            borderwidth=1,
+            relief="flat",
+        )
+
         self.s.layout(
             "TEntry",
             [
@@ -110,26 +140,11 @@ class ServerGUI:
                 )
             ],
         )
-        self.s.configure(
-            "TEntry",
-            foreground=Colors.backgroundText,
-            background=Colors.background,
-            fieldbackground=Colors.background,
-            bordercolor=Colors.border,
-            lightcolor=Colors.border,
-            darkcolor=Colors.border,
-        )
 
         self.s.configure(
             "TButton",
             background=Colors.secondary,
             foreground=Colors.secondaryText,
-            borderwidth=1,
-            bordercolor=Colors.border,
-            lightcolor=Colors.border,
-            darkcolor=Colors.border,
-            focusthickness=1,
-            focuscolor="none",
         )
         self.s.map(
             "TButton",
@@ -144,26 +159,14 @@ class ServerGUI:
             "TFrame",
             background=Colors.secondary,
             foreground=Colors.secondaryText,
-            borderwidth=0,
-            bordercolor=Colors.border,
-            lightcolor=Colors.border,
-            darkcolor=Colors.border,
-            focusthickness=3,
-            focuscolor="none",
         )
 
         self.s.configure(
             "TLabelframe",
-            background=Colors.background,
-            bordercolor=Colors.border,
-            lightcolor=Colors.border,
-            darkcolor=Colors.border,
             labeloutside=False,
         )
         self.s.configure(
             "TLabelframe.Label",
-            background=Colors.background,
-            foreground=Colors.backgroundText,
         )
 
         self.s.configure(
@@ -188,16 +191,13 @@ class ServerGUI:
             background=[("active", Colors.primary), ("disabled", Colors.primary)],
         )
 
+        self.s.configure("TNotebook", tabmargins=[2, 5, 0, 0])
+
         self.s.configure(
-            "TNotebook",
-            background=Colors.background,
-            foreground=Colors.backgroundText,
-            borderwidth=0,
-            bordercolor=Colors.border,
-            lightcolor=Colors.border,
-            darkcolor=Colors.border,
-            focusthickness=0,
-            focuscolor="none",
+            "TNotebook.Tab",
+            background=Colors.secondary,
+            foreground=Colors.secondaryText,
+            padding=[10, 2],
         )
         self.s.map(
             "TNotebook.Tab",
@@ -206,15 +206,34 @@ class ServerGUI:
                 ("active", Colors.primary),
                 ("disabled", Colors.disabled),
             ],
+            lightcolor=[],  # Overriding clam lightcolor list
+            expand=[("selected", [1, 1, 1, 0])],
         )
-        self.s.configure(
+        self.s.layout(
             "TNotebook.Tab",
-            background=Colors.secondary,
-            foreground=Colors.secondaryText,
-            bordercolor=Colors.border,
-            lightcolor=Colors.border,
-            darkcolor=Colors.border,
-            focuscolor="none",
+            [
+                (
+                    "Notebook.tab",
+                    {
+                        "children": [
+                            (
+                                "Notebook.padding",
+                                {
+                                    "side": "top",
+                                    "children": [
+                                        (
+                                            "Notebook.label",
+                                            {
+                                                "side": "top",
+                                            },
+                                        )
+                                    ],
+                                },
+                            )
+                        ]
+                    },
+                )
+            ],
         )
 
     def stopped(self):
@@ -233,39 +252,40 @@ class ServerGUI:
         self.psButton["state"] = "normal"
 
     def __init_frames(self):
-        self.top_frame = ttk.LabelFrame(
+        self.actions_frame = ttk.LabelFrame(
             self.root, text="Actions", width=450, height=50, padding=[8, 0, 8, 8]
         )
-        self.top_frame.grid(row=0, pady=8, padx=8, sticky=tk.W)
+        self.actions_frame.grid(row=0, pady=8, padx=8, sticky=tk.W)
 
-        self.bottom_frame = tk.Frame(self.root, pady=8, padx=8)
-        self.bottom_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
+        self.tabs_frame = tk.Frame(self.root, pady=8, padx=8)
+        self.tabs_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
     def init_commands(self, start, pause, stop):
         self.twButton = ttk.Button(
-            self.top_frame,
+            self.actions_frame,
             text="Connect to Twitch",
             command=lambda: [async_handler(start)(), self.started()],
         )
         self.twButton.grid(row=0, column=1, padx=0)
 
         self.psButton = ttk.Button(
-            self.top_frame, text="Pause", command=lambda: [pause(), self.paused()]
+            self.actions_frame, text="Pause", command=lambda: [pause(), self.paused()]
         )
         self.psButton.grid(row=0, column=2, padx=8)
 
         self.stButton = ttk.Button(
-            self.top_frame, text="Stop", command=lambda: [stop(), self.stopped()]
+            self.actions_frame, text="Stop", command=lambda: [stop(), self.stopped()]
         )
         self.stButton.grid(row=0, column=3)
         self.stopped()
 
     def __init_tabs(self):
-        self.tabControl = ttk.Notebook(self.bottom_frame)
+        self.tabControl = ttk.Notebook(self.tabs_frame)
         self.debug_tab = ttk.Frame(self.tabControl)
         self.chat_tab = ttk.Frame(self.tabControl)
         self.broadcast_tab = ttk.Frame(self.tabControl)
         self.settings_tab = ttk.Frame(self.tabControl)
+
         self.tabControl.add(self.debug_tab, text="Debugging")
         self.tabControl.add(self.chat_tab, text="Chat")
         self.tabControl.add(self.broadcast_tab, text="Broadcast")
