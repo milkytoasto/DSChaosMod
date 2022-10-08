@@ -20,11 +20,10 @@ if __name__ == "__main__":
     gui.init_commands(
         connect=vh.connect,
         disconnect=vh.disconnect,
-        start=lambda: vh.start(gui.stopped),
+        start=vh.start,
         pause=vh.pause,
         stop=vh.stop,
     )
-
     gui.init_settings_tab(
         saveHandler=lambda fields: [ch.save_config(fields), vh.load_config()],
         channel=ch.get_channel(),

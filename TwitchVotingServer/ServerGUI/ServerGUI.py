@@ -18,28 +18,28 @@ class ServerGUI(ChaosTheme):
         self.__init_logging_tab(self.broadcast_tab, "broadcast")
         async_handler(websocket_server)()
 
-    def connected(self):
+    def __connected(self):
         self.connectButton["state"] = "disabled"
         self.disconnectButton["state"] = "normal"
         self.startButton["state"] = "normal"
 
-    def disconnected(self):
+    def __disconnected(self):
         self.connectButton["state"] = "normal"
         self.disconnectButton["state"] = "disabled"
         self.startButton["state"] = "disabled"
         self.stopButton["state"] = "disabled"
         self.pauseButton["state"] = "disabled"
 
-    def started(self):
+    def __started(self):
         self.startButton["state"] = "disabled"
         self.stopButton["state"] = "normal"
         self.pauseButton["state"] = "normal"
 
-    def paused(self):
+    def __paused(self):
         self.startButton["state"] = "normal"
         self.pauseButton["state"] = "disabled"
 
-    def stopped(self):
+    def __stopped(self):
         self.startButton["state"] = "normal"
         self.stopButton["state"] = "disabled"
         self.pauseButton["state"] = "disabled"
@@ -56,36 +56,6 @@ class ServerGUI(ChaosTheme):
 
         self.tabs_frame = tk.Frame(self.root, pady=8, padx=8)
         self.tabs_frame.grid(row=1, columnspan=20, sticky=tk.E + tk.W + tk.N + tk.S)
-
-    def init_commands(self, connect, disconnect, start, pause, stop):
-        self.connectButton = ttk.Button(
-            self.connection_actions,
-            text="Connect to Twitch",
-            command=lambda: [async_handler(connect)(), self.connected()],
-        )
-        self.disconnectButton = ttk.Button(
-            self.connection_actions,
-            text="Disconnect",
-            command=lambda: [async_handler(disconnect)(), self.disconnected()],
-        )
-        self.startButton = ttk.Button(
-            self.voting_actions,
-            text="Start",
-            command=lambda: [start(), self.started()],
-        )
-        self.pauseButton = ttk.Button(
-            self.voting_actions, text="Pause", command=lambda: [pause(), self.paused()]
-        )
-        self.stopButton = ttk.Button(
-            self.voting_actions, text="Stop", command=lambda: [stop(), self.stopped()]
-        )
-
-        self.connectButton.grid(row=0, column=0, padx=4)
-        self.disconnectButton.grid(row=0, column=1, padx=4)
-        self.startButton.grid(row=0, column=2, padx=4)
-        self.pauseButton.grid(row=0, column=3, padx=4)
-        self.stopButton.grid(row=0, column=4, padx=4)
-        self.disconnected()
 
     def __init_tabs(self):
         self.tabControl = ttk.Notebook(self.tabs_frame)
@@ -126,6 +96,38 @@ class ServerGUI(ChaosTheme):
         saveHandler(self.settingsFieldValues)
         for field in self.settingsFields:
             field["state"] = "active"
+
+    def init_commands(self, connect, disconnect, start, pause, stop):
+        self.connectButton = ttk.Button(
+            self.connection_actions,
+            text="Connect to Twitch",
+            command=lambda: [async_handler(connect)(), self.__connected()],
+        )
+        self.disconnectButton = ttk.Button(
+            self.connection_actions,
+            text="Disconnect",
+            command=lambda: [async_handler(disconnect)(), self.__disconnected()],
+        )
+        self.startButton = ttk.Button(
+            self.voting_actions,
+            text="Start",
+            command=lambda: [start(self.__stopped), self.__started()],
+        )
+        self.pauseButton = ttk.Button(
+            self.voting_actions,
+            text="Pause",
+            command=lambda: [pause(), self.__paused()],
+        )
+        self.stopButton = ttk.Button(
+            self.voting_actions, text="Stop", command=lambda: [stop(), self.__stopped()]
+        )
+
+        self.connectButton.grid(row=0, column=0, padx=4)
+        self.disconnectButton.grid(row=0, column=1, padx=4)
+        self.startButton.grid(row=0, column=2, padx=4)
+        self.pauseButton.grid(row=0, column=3, padx=4)
+        self.stopButton.grid(row=0, column=4, padx=4)
+        self.__disconnected()
 
     def init_settings_tab(
         self,
