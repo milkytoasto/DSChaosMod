@@ -10,7 +10,7 @@ from .TwitchBot import TwitchBot
 class VotingHandler:
     def __init__(self, configHandler, chaosHandler, websocketHandler):
         self.enabled = asyncio.Event()
-        self.running = False
+        self.connected = False
         self.votes = {}
         self.websocketHandler = websocketHandler
         self.chaosHandler = chaosHandler
@@ -19,8 +19,8 @@ class VotingHandler:
         self.load_config()
 
     async def connect(self, stopped):
-        if self.running:
-            self.debug_logger.error("Already running.")
+        if self.connected:
+            self.debug_logger.error("Already connected.")
             return
 
         self.bot = TwitchBot(
@@ -53,7 +53,7 @@ class VotingHandler:
             p.cancel()
 
         stopped()
-        self.running = False
+        self.connected = False
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
     def start(self, stopped):
@@ -67,19 +67,19 @@ class VotingHandler:
         self.enabled.set()
 
     def pause(self):
-        self.running = False
+        self.connected = False
 
     def stop(self):
         self.enabled.clear()
-        self.running = False
+        self.connected = False
         self.load_config()
         self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
 
     async def voting_controller(self):
-        self.running = True
+        self.connected = True
         self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
 
-        while self.running:
+        while self.connected:
             await self.enabled.wait()
             await asyncio.sleep(1)
 

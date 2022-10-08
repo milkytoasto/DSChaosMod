@@ -237,24 +237,39 @@ class ServerGUI:
         )
 
     def connected(self):
-        self.twButton["state"] = "normal"
-        self.stButton["state"] = "disabled"
-        self.psButton["state"] = "disabled"
+        self.connectButton["state"] = "disabled"
+        self.disconnectButton["state"] = "normal"
+        self.startButton["state"] = "normal"
+        self.stopButton["state"] = "disabled"
+        self.pauseButton["state"] = "disabled"
+
+    def disconnected(self):
+        self.connectButton["state"] = "normal"
+        self.disconnectButton["state"] = "disabled"
+        self.startButton["state"] = "disabled"
+        self.stopButton["state"] = "disabled"
+        self.pauseButton["state"] = "disabled"
 
     def stopped(self):
-        self.twButton["state"] = "normal"
-        self.stButton["state"] = "disabled"
-        self.psButton["state"] = "disabled"
+        self.connectButton["state"] = "disabled"
+        self.disconnectButton["state"] = "disabled"
+        self.startButton["state"] = "normal"
+        self.stopButton["state"] = "disabled"
+        self.pauseButton["state"] = "disabled"
 
     def paused(self):
-        self.twButton["state"] = "normal"
-        self.stButton["state"] = "normal"
-        self.psButton["state"] = "disabled"
+        self.connectButton["state"] = "normal"
+        self.disconnectButton["state"] = "disabled"
+        self.startButton["state"] = "normal"
+        self.stopButton["state"] = "normal"
+        self.pauseButton["state"] = "disabled"
 
     def started(self):
-        self.twButton["state"] = "disabled"
-        self.stButton["state"] = "normal"
-        self.psButton["state"] = "normal"
+        self.connectButton["state"] = "disabled"
+        self.disconnectButton["state"] = "disabled"
+        self.startButton["state"] = "normal"
+        self.stopButton["state"] = "normal"
+        self.pauseButton["state"] = "normal"
 
     def __init_frames(self):
         self.actions_frame = ttk.LabelFrame(
@@ -266,28 +281,34 @@ class ServerGUI:
         self.tabs_frame.grid(row=1, sticky=tk.E + tk.W + tk.N + tk.S)
 
     def init_commands(self, connect, start, pause, stop):
-        self.twButton = ttk.Button(
+        self.connectButton = ttk.Button(
             self.actions_frame,
             text="Connect to Twitch",
             command=lambda: [async_handler(connect)(), self.connected()],
         )
-        self.twButton.grid(row=0, column=0, padx=4)
+        self.disconnectButton = ttk.Button(
+            self.actions_frame,
+            text="Disconnect",
+            command=lambda: [self.disconnected()],
+        )
         self.startButton = ttk.Button(
             self.actions_frame,
             text="Start",
             command=lambda: [start(), self.started()],
         )
-        self.startButton.grid(row=0, column=1, padx=4)
-        self.psButton = ttk.Button(
+        self.pauseButton = ttk.Button(
             self.actions_frame, text="Pause", command=lambda: [pause(), self.paused()]
         )
-        self.psButton.grid(row=0, column=3, padx=4)
-
-        self.stButton = ttk.Button(
+        self.stopButton = ttk.Button(
             self.actions_frame, text="Stop", command=lambda: [stop(), self.stopped()]
         )
-        self.stButton.grid(row=0, column=4)
-        self.stopped()
+
+        self.connectButton.grid(row=0, column=0, padx=4)
+        self.disconnectButton.grid(row=0, column=1, padx=4)
+        self.startButton.grid(row=0, column=2, padx=4)
+        self.pauseButton.grid(row=0, column=3, padx=4)
+        self.stopButton.grid(row=0, column=4)
+        self.disconnected()
 
     def __init_tabs(self):
         self.tabControl = ttk.Notebook(self.tabs_frame)
