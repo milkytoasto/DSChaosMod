@@ -8,6 +8,7 @@ from ChaosHandler.ChaosHandler import NoProcessFoundError
 
 class VotingHandler:
     def __init__(self, configHandler, chaosHandler, websocketHandler):
+        self.bot = None
         self.enabled = asyncio.Event()
         self.connected = False
         self.votes = {}
@@ -57,7 +58,8 @@ class VotingHandler:
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
     async def disconnect(self):
-        await self.bot.close()
+        if self.bot is not None:
+            await self.bot.close()
 
     def start(self, stopped):
         try:
