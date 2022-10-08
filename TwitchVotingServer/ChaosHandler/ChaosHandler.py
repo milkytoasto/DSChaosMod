@@ -14,7 +14,7 @@ class NoProcessFoundError(Exception):
 
 class ChaosHandler:
     def __init__(self):
-        self.event = asyncio.Event()
+        self.effect = asyncio.Event()
         self.game = None
         self.sampled_options = None
 
@@ -33,12 +33,12 @@ class ChaosHandler:
 
     async def effect_controller(self):
         while True:
-            await self.event.wait()
+            await self.effect.wait()
             try:
                 await self.current_effect.start(self.pm, self.module)
             finally:
                 await self.current_effect.stop(self.pm, self.module)
-            self.event.clear()
+            self.effect.clear()
 
     def hook(self):
         self.__find_process()
@@ -58,7 +58,7 @@ class ChaosHandler:
 
     def trigger_effect(self, effect):
         self.current_effect = effect
-        self.event.set()
+        self.effect.set()
 
     def __find_process(self):
         self.process_title = None
