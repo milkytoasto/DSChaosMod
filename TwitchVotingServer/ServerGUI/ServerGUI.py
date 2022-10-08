@@ -97,6 +97,10 @@ class ServerGUI(ChaosTheme):
         for field in self.settingsFields:
             field["state"] = "active"
 
+    async def __quit(self, disconnect):
+        await disconnect()
+        self.root.destroy()
+
     def init_commands(self, connect, disconnect, start, pause, stop):
         self.connectButton = ttk.Button(
             self.connection_actions,
@@ -107,6 +111,9 @@ class ServerGUI(ChaosTheme):
             self.connection_actions,
             text="Disconnect",
             command=lambda: [async_handler(disconnect)(), self.__disconnected()],
+        )
+        self.root.protocol(
+            "WM_DELETE_WINDOW", lambda: [async_handler(self.__quit)(disconnect)]
         )
         self.startButton = ttk.Button(
             self.voting_actions,
