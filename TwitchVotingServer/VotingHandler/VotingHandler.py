@@ -54,6 +54,7 @@ class VotingHandler:
             self.debug_logger.info(f"Cancelling {p.get_name()}.")
             p.cancel()
 
+        self.bot = None
         self.connected = False
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
