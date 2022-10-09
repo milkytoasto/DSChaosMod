@@ -27,13 +27,13 @@ class ServerGUI(ChaosTheme):
         self.connectButton["state"] = "normal"
         self.disconnectButton["state"] = "disabled"
         self.startButton["state"] = "disabled"
-        self.stopButton["state"] = "disabled"
         self.pauseButton["state"] = "disabled"
+        self.stopButton["state"] = "disabled"
 
     def __started(self):
         self.startButton["state"] = "disabled"
-        self.stopButton["state"] = "normal"
         self.pauseButton["state"] = "normal"
+        self.stopButton["state"] = "normal"
 
     def __paused(self):
         self.startButton["state"] = "normal"
@@ -41,20 +41,20 @@ class ServerGUI(ChaosTheme):
 
     def __stopped(self):
         self.startButton["state"] = "normal"
-        self.stopButton["state"] = "disabled"
         self.pauseButton["state"] = "disabled"
+        self.stopButton["state"] = "disabled"
 
     def __init_frames(self):
         self.connection_actions = ttk.LabelFrame(
             self.root, text="Connection", width=450, height=50, padding=[8, 0, 8, 8]
         )
-        self.connection_actions.grid(row=0, pady=8, padx=8, sticky=tk.W)
         self.voting_actions = ttk.LabelFrame(
             self.root, text="Voting", width=450, height=50, padding=[8, 0, 8, 8]
         )
-        self.voting_actions.grid(row=0, column=1, pady=8, padx=8, sticky=tk.W)
-
         self.tabs_frame = tk.Frame(self.root, pady=8, padx=8)
+
+        self.connection_actions.grid(row=0, pady=8, padx=8, sticky=tk.W)
+        self.voting_actions.grid(row=0, column=1, pady=8, padx=8, sticky=tk.W)
         self.tabs_frame.grid(row=1, columnspan=20, sticky=tk.E + tk.W + tk.N + tk.S)
 
     def __init_tabs(self):
@@ -106,8 +106,8 @@ class ServerGUI(ChaosTheme):
             self.connection_actions,
             text="Connect to Twitch",
             command=lambda: [
-                async_handler(connect)(self.__disconnected),
                 self.__connected(),
+                async_handler(connect)(self.__disconnected),
             ],
         )
         self.disconnectButton = ttk.Button(
@@ -121,7 +121,7 @@ class ServerGUI(ChaosTheme):
         self.startButton = ttk.Button(
             self.voting_actions,
             text="Start",
-            command=lambda: [start(self.__stopped), self.__started()],
+            command=lambda: [self.__started(), start(self.__stopped)],
         )
         self.pauseButton = ttk.Button(
             self.voting_actions,
@@ -149,38 +149,31 @@ class ServerGUI(ChaosTheme):
     ):
         self.channel = tk.StringVar(self.root, value=channel)
         self.tmiToken = tk.StringVar(self.root, value=tmiToken)
-
         self.votingDuration = tk.StringVar(self.root, value=votingDuration)
         self.effectDuration = tk.StringVar(self.root, value=effectDuration)
 
-        self.channelLabel = ttk.Label(self.settings_tab, text="Channel").grid(
-            row=0, column=0, padx=8, pady=8, sticky="e"
-        )
+        self.channelLabel = ttk.Label(self.settings_tab, text="Channel")
         self.channelField = ttk.Entry(self.settings_tab, textvariable=self.channel)
-        self.channelField.grid(row=0, column=1, padx=8, pady=8)
-
-        self.tmiTokenLabel = ttk.Label(self.settings_tab, text="Oauth Token").grid(
-            row=1, column=0, padx=8, pady=8, sticky="e"
-        )
+        self.tmiTokenLabel = ttk.Label(self.settings_tab, text="Oauth Token")
         self.tmiTokenField = ttk.Entry(
             self.settings_tab, show="*", textvariable=self.tmiToken
         )
-        self.tmiTokenField.grid(row=1, column=1, padx=8, pady=8)
-
-        self.votingDurationLabel = ttk.Label(
-            self.settings_tab, text="Voting Durection"
-        ).grid(row=2, column=0, padx=8, pady=8, sticky="e")
+        self.votingDurationLabel = ttk.Label(self.settings_tab, text="Voting Durection")
         self.votingDurationField = ttk.Entry(
             self.settings_tab, textvariable=self.votingDuration
         )
-        self.votingDurationField.grid(row=2, column=1, padx=8, pady=8)
-
-        self.effectDurationLabel = ttk.Label(
-            self.settings_tab, text="Voting Durection"
-        ).grid(row=3, column=0, padx=8, pady=8, sticky="e")
+        self.effectDurationLabel = ttk.Label(self.settings_tab, text="Voting Durection")
         self.effectDurationField = ttk.Entry(
             self.settings_tab, textvariable=self.effectDuration
         )
+
+        self.channelLabel.grid(row=0, column=0, padx=8, pady=8, sticky="e")
+        self.channelField.grid(row=0, column=1, padx=8, pady=8)
+        self.tmiTokenLabel.grid(row=1, column=0, padx=8, pady=8, sticky="e")
+        self.tmiTokenField.grid(row=1, column=1, padx=8, pady=8)
+        self.votingDurationLabel.grid(row=2, column=0, padx=8, pady=8, sticky="e")
+        self.votingDurationField.grid(row=2, column=1, padx=8, pady=8)
+        self.effectDurationLabel.grid(row=3, column=0, padx=8, pady=8, sticky="e")
         self.effectDurationField.grid(row=3, column=1, padx=8, pady=8)
 
         # Give save row/column a non-zero weight to give extra
