@@ -105,7 +105,10 @@ class ServerGUI(ChaosTheme):
         self.connectButton = ttk.Button(
             self.connection_actions,
             text="Connect to Twitch",
-            command=lambda: [async_handler(connect)(), self.__connected()],
+            command=lambda: [
+                async_handler(connect)(self.__disconnected),
+                self.__connected(),
+            ],
         )
         self.disconnectButton = ttk.Button(
             self.connection_actions,

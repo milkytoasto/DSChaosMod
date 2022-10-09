@@ -18,7 +18,7 @@ class VotingHandler:
         self.debug_logger = logging.getLogger("debug")
         self.load_config()
 
-    async def connect(self):
+    async def connect(self, gui_disconnected):
         if self.connected:
             self.debug_logger.error("Already connected.")
             return
@@ -56,6 +56,7 @@ class VotingHandler:
 
         self.bot = None
         self.connected = False
+        gui_disconnected()
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
     async def disconnect(self):
