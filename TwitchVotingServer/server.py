@@ -31,5 +31,9 @@ if __name__ == "__main__":
         votingDuration=vh.votingDuration,
         effectDuration=vh.effectDuration,
     )
+    gui.init_effects_tab(
+        saveHandler=lambda fields: [ch.save_config(fields), vh.load_config()],
+        configHandler=ch,
+    )
 
     async_mainloop(gui.root)

@@ -11,6 +11,7 @@ from .utils.WidgetLogger import WidgetLogger
 class ServerGUI(ChaosTheme):
     def __init__(self, title, websocket_server):
         super().__init__(title)
+        self.effect_settings = None
         self.__init_frames()
         self.__init_tabs()
         self.__init_logging_tab(self.debug_tab, "debug")
@@ -63,11 +64,13 @@ class ServerGUI(ChaosTheme):
         self.chat_tab = ttk.Frame(self.tabControl)
         self.broadcast_tab = ttk.Frame(self.tabControl)
         self.settings_tab = ttk.Frame(self.tabControl)
+        self.effects_tab = ttk.Frame(self.tabControl)
 
         self.tabControl.add(self.debug_tab, text="Debugging")
         self.tabControl.add(self.chat_tab, text="Chat")
         self.tabControl.add(self.broadcast_tab, text="Broadcast")
         self.tabControl.add(self.settings_tab, text="Settings")
+        self.tabControl.add(self.effects_tab, text="Effects")
         self.tabControl.pack(expand=1, fill="both")
 
     def __init_logging_tab(self, tab, name=""):
@@ -204,3 +207,39 @@ class ServerGUI(ChaosTheme):
             text="Save Settings",
             command=lambda: self.__save_settings(saveHandler),
         ).grid(row=10, column=10, padx=8, pady=8, sticky="se")
+
+    def __save_effects(self, saveHandler):
+        saveHandler(self.effect_settings)
+
+    def init_effects_tab(self, saveHandler, configHandler):
+        vsb = ttk.Scrollbar(self.effects_tab, orient="vertical")
+        text = tk.Text(self.effects_tab, width=60, height=20, yscrollcommand=vsb.set)
+        vsb.config(command=text.yview)
+        text.pack(side="left", fill="y")
+        vsb.pack(side="left", fill="y", anchor="w")
+
+        effect_settings = dict()
+
+        games = ["DARK_SOULS_REMASTERED", "DARK_SOULS_II", "DARK_SOULS_III"]
+
+        for game in games:
+            section = configHandler.get_section(game)
+            if section is not None:
+                effect_settings[game] = dict()
+                for effect in section:
+                    new_var = tk.BooleanVar(self.root, value=section.getboolean(effect))
+
+                    effect_settings[game][effect] = new_var
+                    button = ttk.Checkbutton(
+                        self.effects_tab, text=f"{game}.{effect}", variable=new_var
+                    )
+                    text.window_create("end", window=button)
+                    text.insert("end", "\n")
+
+        text["state"] = "disabled"
+        self.effect_settings = effect_settings
+        self.saveSettings = ttk.Button(
+            self.effects_tab,
+            text="Save Effects",
+            command=lambda: self.__save_effects(saveHandler),
+        ).pack(side="right", anchor="se", padx=8, pady=8)
