@@ -5,6 +5,7 @@ from pymem import memory
 
 class Blind(BaseEffect):
     name = "Blinded"
+    config_alias = "blind"
 
     @classmethod
     async def onStart(cls, pm, module):

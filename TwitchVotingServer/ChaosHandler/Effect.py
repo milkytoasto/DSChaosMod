@@ -5,6 +5,7 @@ class BaseEffect:
     name = "Base Effect"
     running = False
     seconds: int
+    config_alias = "base_effect"
 
     @classmethod
     async def start(cls, *args):

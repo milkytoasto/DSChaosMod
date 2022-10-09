@@ -5,6 +5,7 @@ from pymem import memory
 
 class LowerDrawDistance(BaseEffect):
     name = "Lower Draw Distance"
+    config_alias = "lower_draw_distance"
 
     @classmethod
     async def onStart(cls, pm, module):

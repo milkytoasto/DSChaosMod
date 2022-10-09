@@ -5,6 +5,7 @@ from pymem import memory
 
 class Sliding(BaseEffect):
     name = "Sliding"
+    config_alias = "sliding"
 
     @classmethod
     async def onStart(cls, pm, module):

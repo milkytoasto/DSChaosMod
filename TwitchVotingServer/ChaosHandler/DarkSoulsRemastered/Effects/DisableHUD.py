@@ -5,6 +5,7 @@ from pymem import memory
 
 class DisableHUD(BaseEffect):
     name = "Disable HUD"
+    config_alias = "disable_hud"
 
     @classmethod
     async def onStart(cls, pm, module):

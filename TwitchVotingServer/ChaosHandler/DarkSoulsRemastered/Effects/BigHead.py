@@ -5,6 +5,7 @@ from pymem import memory
 
 class BigHead(BaseEffect):
     name = "Big Head Mode"
+    config_alias = "big_head"
 
     @classmethod
     async def onStart(cls, pm, module):

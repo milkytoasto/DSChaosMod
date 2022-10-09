@@ -5,6 +5,7 @@ from pymem import memory
 
 class TinyHead(BaseEffect):
     name = "Tiny Head Mode"
+    config_alias = "tiny_head"
 
     @classmethod
     async def onStart(cls, pm, module):
