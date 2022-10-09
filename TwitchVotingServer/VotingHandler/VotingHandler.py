@@ -9,6 +9,7 @@ from ChaosHandler.ChaosHandler import NoProcessFoundError
 class VotingHandler:
     def __init__(self, configHandler, chaosHandler, websocketHandler):
         self.bot = None
+        self.current_effect = None
         self.enabled = asyncio.Event()
         self.connected = False
         self.votes = {}
@@ -82,8 +83,10 @@ class VotingHandler:
         self.bot.init_votes(
             self.acceptingVotes, self.chaosHandler.get_existing_options()
         )
+        self.current_effect.cancel()
 
     async def voting_controller(self):
+        await self.enabled.wait()
         self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
 
         while self.connected:
