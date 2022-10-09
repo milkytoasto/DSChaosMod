@@ -212,7 +212,6 @@ class ServerGUI(ChaosTheme):
         saveHandler(self.effect_settings)
 
     def __dropdown_select(self):
-        print(f"Selected {self.selected_game.get()}")
         game = self.selected_game.get()
         game_effects = self.effect_settings[game]
 
