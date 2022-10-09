@@ -11,8 +11,8 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read("config.ini")
 
-    chaos = ChaosHandler()
     ch = ConfigHandler(config)
+    chaos = ChaosHandler(configHandler=ch)
     wsh = WebsocketHandler(port=7890)
     vh = VotingHandler(configHandler=ch, chaosHandler=chaos, websocketHandler=wsh)
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         effectDuration=vh.effectDuration,
     )
     gui.init_effects_tab(
-        saveHandler=lambda fields: [ch.save_config(fields), vh.load_config()],
+        saveHandler=lambda fields: [ch.save_config(fields), chaos.load_config()],
         configHandler=ch,
     )
 
