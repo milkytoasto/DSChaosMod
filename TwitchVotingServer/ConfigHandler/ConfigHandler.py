@@ -5,11 +5,15 @@ class ConfigHandler:
     def save_config(self, fields):
         for section in fields:
             for option in fields[section]:
-                if value := fields[section][option].get():
-                    self.config.set(section, option, value)
+                if (value := fields[section][option].get()) is not None:
+                    self.config.set(section, option, str(value))
 
         with open("config.ini", "w") as configfile:
             self.config.write(configfile)
+
+    def get_section(self, section):
+        if section in self.config:
+            return self.config[section]
 
     def get_option(self, section, option, default_value, type=str):
         if self.config.has_option(section, option):
