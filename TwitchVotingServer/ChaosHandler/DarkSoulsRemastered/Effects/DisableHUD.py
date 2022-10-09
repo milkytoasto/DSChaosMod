@@ -14,8 +14,7 @@ class DisableHUD(BaseEffect):
         HUDPointer = PointerAddress.HUD(pm, BaseB)
 
         memory.write_bytes(pm.process_handle, HUDPointer, b"\x00", 1)
-        await asyncio.sleep(cls.seconds)
-        memory.write_bytes(pm.process_handle, HUDPointer, b"\x01", 1)
+        await cls.tick(cls.seconds, pm, module)
 
     @classmethod
     async def onStop(cls, pm, module):

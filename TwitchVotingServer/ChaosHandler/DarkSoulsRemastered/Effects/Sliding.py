@@ -13,8 +13,8 @@ class Sliding(BaseEffect):
         BaseX = BaseAddress.BaseX(pm, module)
         SlidePointer = PointerAddress.Slide(pm, BaseX)
 
-        seconds_passed = 0
-        while seconds_passed < cls.seconds:
-            seconds_passed = seconds_passed + 1
-            memory.write_bytes(pm.process_handle, SlidePointer, b"\x01", 1)
-            await asyncio.sleep(1)
+        await cls.tick(cls.seconds, pm, SlidePointer)
+
+    @classmethod
+    async def onTick(cls, pm, SlidePointer):
+        memory.write_bytes(pm.process_handle, SlidePointer, b"\x01", 1)
