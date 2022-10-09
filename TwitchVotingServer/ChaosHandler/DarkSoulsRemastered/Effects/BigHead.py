@@ -14,7 +14,7 @@ class BigHead(BaseEffect):
         HeadPointer = PointerAddress.PlayerHeadSize(pm, BaseB)
 
         memory.write_float(pm.process_handle, HeadPointer, 20)
-        await asyncio.sleep(cls.seconds)
+        await cls.tick(cls.seconds, pm, module)
 
     @classmethod
     async def onStop(cls, pm, module):

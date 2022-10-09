@@ -1,3 +1,6 @@
+import asyncio
+
+
 class BaseEffect:
     name = "Base Effect"
     running = False
@@ -11,6 +14,29 @@ class BaseEffect:
 
     @classmethod
     async def onStart(cls, *args):
+        pass
+
+    @classmethod
+    def cancel(cls):
+        cls.running = False
+
+    @classmethod
+    async def tick(cls, seconds=None, *args):
+        if seconds is None:
+            seconds = cls.seconds
+
+        i = 0
+        while i < seconds:
+            if cls.running:
+                await cls.onTick(*args)
+                await asyncio.sleep(1)
+            else:
+                await cls.onStop(*args)
+                return
+            i = i + 1
+
+    @classmethod
+    async def onTick(cls, *args):
         pass
 
     @classmethod

@@ -14,7 +14,7 @@ class Blind(BaseEffect):
         DrawDistancePointer = PointerAddress.DrawDistance(pm, BaseCAR)
 
         memory.write_float(pm.process_handle, DrawDistancePointer, 1)
-        await asyncio.sleep(cls.seconds)
+        await cls.tick(cls.seconds, pm, module)
 
     @classmethod
     async def onStop(cls, pm, module):
