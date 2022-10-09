@@ -1,5 +1,3 @@
-import asyncio
-
 from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, PointerAddress
 from ChaosHandler.Effect import BaseEffect
 from pymem import memory
