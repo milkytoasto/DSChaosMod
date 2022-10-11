@@ -1,5 +1,3 @@
-import asyncio
-
 from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, PointerAddress
 from ChaosHandler.Effect import BaseEffect
 from pymem import memory
@@ -7,6 +5,7 @@ from pymem import memory
 
 class LowerDrawDistance(BaseEffect):
     name = "Lower Draw Distance"
+    config_alias = "lower_draw_distance"
 
     @classmethod
     async def onStart(cls, pm, module):

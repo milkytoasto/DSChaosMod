@@ -1,5 +1,6 @@
 import asyncio
 import random
+from re import S
 
 import psutil
 from pymem import Pymem, process
@@ -13,16 +14,39 @@ class NoProcessFoundError(Exception):
 
 
 class ChaosHandler:
-    def __init__(self):
+    def __init__(self, configHandler):
         self.effect = asyncio.Event()
         self.game = None
         self.sampled_options = None
+        self.configHandler = configHandler
+
+    def load_config(self):
+        self.available_effects = dict()
+        games = [DarkSoulsRemastered]
+
+        for game in games:
+            if (
+                game_section := self.configHandler.get_section(game.config_alias)
+            ) is not None:
+                self.available_effects[game.config_alias] = game_section
 
     def get_options(self):
         if self.game is None:
             return []
 
-        effect_options = self.game.effects
+        effect_options = []
+        game = self.game
+        if game.config_alias in self.available_effects:
+            game_configs = self.available_effects[game.config_alias]
+            for effect in game.effects:
+                if (
+                    effect.config_alias in game_configs
+                    and game_configs.getboolean(effect.config_alias) == True
+                ):
+                    effect_options.append(effect)
+        else:
+            effect_options = game.effects
+
         self.sampled_options = random.sample(effect_options, k=3)
         return self.sampled_options
 
@@ -45,6 +69,8 @@ class ChaosHandler:
 
         if self.process_title is None:
             raise NoProcessFoundError(f"No suitable process found.")
+
+        self.load_config()
 
         try:
             pm = Pymem(self.process_title)

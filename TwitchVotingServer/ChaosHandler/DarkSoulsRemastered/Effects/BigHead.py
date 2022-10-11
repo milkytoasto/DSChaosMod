@@ -1,5 +1,3 @@
-import asyncio
-
 from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, PointerAddress
 from ChaosHandler.Effect import BaseEffect
 from pymem import memory
@@ -7,6 +5,7 @@ from pymem import memory
 
 class BigHead(BaseEffect):
     name = "Big Head Mode"
+    config_alias = "big_head"
 
     @classmethod
     async def onStart(cls, pm, module):

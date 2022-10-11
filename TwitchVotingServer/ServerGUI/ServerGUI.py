@@ -11,6 +11,7 @@ from .utils.WidgetLogger import WidgetLogger
 class ServerGUI(ChaosTheme):
     def __init__(self, title, websocket_server):
         super().__init__(title)
+        self.effect_settings = None
         self.__init_frames()
         self.__init_tabs()
         self.__init_logging_tab(self.debug_tab, "debug")
@@ -63,11 +64,13 @@ class ServerGUI(ChaosTheme):
         self.chat_tab = ttk.Frame(self.tabControl)
         self.broadcast_tab = ttk.Frame(self.tabControl)
         self.settings_tab = ttk.Frame(self.tabControl)
+        self.effects_tab = ttk.Frame(self.tabControl)
 
         self.tabControl.add(self.debug_tab, text="Debugging")
         self.tabControl.add(self.chat_tab, text="Chat")
         self.tabControl.add(self.broadcast_tab, text="Broadcast")
         self.tabControl.add(self.settings_tab, text="Settings")
+        self.tabControl.add(self.effects_tab, text="Effects")
         self.tabControl.pack(expand=1, fill="both")
 
     def __init_logging_tab(self, tab, name=""):
@@ -204,3 +207,83 @@ class ServerGUI(ChaosTheme):
             text="Save Settings",
             command=lambda: self.__save_settings(saveHandler),
         ).grid(row=10, column=10, padx=8, pady=8, sticky="se")
+
+    def __save_effects(self, saveHandler):
+        saveHandler(self.effect_settings)
+
+    def __dropdown_select(self):
+        game = self.selected_game.get()
+        game_effects = self.effect_settings[game]
+
+        self.effectObjects = []
+        self.effectBox.config(state="normal")
+        self.effectBox.delete("1.0", "end")
+
+        for effect in self.effectObjects:
+            effect.destroy()
+
+        for effect in game_effects:
+            button = ttk.Checkbutton(
+                self.effectBox, text=f"{effect}", variable=game_effects[effect]
+            )
+            self.effectBox.window_create("end", window=button)
+            self.effectBox.insert("end", "\n")
+            self.effectObjects.append(button)
+        self.effectBox.config(state="disabled")
+
+    def init_effects_tab(self, saveHandler, configHandler):
+        self.effectObjects = []
+
+        left = ttk.Frame(self.effects_tab)
+        right = ttk.Frame(self.effects_tab)
+
+        vsb = ttk.Scrollbar(left, orient="vertical")
+        effectBox = tk.Text(left, width=40, height=20, yscrollcommand=vsb.set)
+        vsb.config(command=effectBox.yview)
+        effectBox.pack(side="left", fill="y")
+        vsb.pack(side="left", fill="y", anchor="w")
+
+        effect_settings = dict()
+
+        games = ["DARK_SOULS_REMASTERED", "DARK_SOULS_II", "DARK_SOULS_III"]
+        game_options = []
+
+        for game in games:
+            section = configHandler.get_section(game)
+            if section is not None:
+                game_options.append(game)
+                effect_settings[game] = dict()
+                for effect in section:
+                    new_var = tk.BooleanVar(self.root, value=section.getboolean(effect))
+                    effect_settings[game][effect] = new_var
+
+        self.effect_settings = effect_settings
+
+        effectBox["state"] = "disabled"
+        self.effectBox = effectBox
+        self.selected_game = tk.StringVar()
+        self.optionsMenu = ttk.Combobox(
+            right,
+            values=game_options,
+            textvariable=self.selected_game,
+            width=50,
+        )
+        self.optionsMenu.pack(
+            side="top", anchor="n", fill="x", expand=True, padx=8, pady=8
+        )
+        self.optionsMenu.bind(
+            "<<ComboboxSelected>>", lambda event: self.__dropdown_select()
+        )
+
+        self.saveSettings = ttk.Button(
+            right,
+            text="Save Effects",
+            command=lambda: self.__save_effects(saveHandler),
+        ).pack(side="right", anchor="s", padx=8, pady=8)
+
+        left.pack(side="left", fill="y")
+        right.pack(side="right", anchor="e", fill="both")
+
+        if len(game_options) > 0:
+            self.selected_game.set(game_options[0])
+            self.__dropdown_select()

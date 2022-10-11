@@ -5,6 +5,7 @@ from pymem import memory
 
 class OneHP(BaseEffect):
     name = "1 HP"
+    config_alias = "one_hp"
 
     @classmethod
     async def onStart(cls, pm, module):
