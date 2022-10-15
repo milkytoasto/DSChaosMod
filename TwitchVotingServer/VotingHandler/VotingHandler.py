@@ -27,8 +27,8 @@ class VotingHandler:
         self.connected = True
 
         self.bot = TwitchBot(
-            token=self.configHandler.get_token(),
-            channel=self.configHandler.get_channel(),
+            token=self.configHandler.get_option("TWITCH", "TMI_TOKEN", "", type=str),
+            channel=self.configHandler.get_option("TWITCH", "CHANNEL", "", type=str),
             debug_logger=self.debug_logger,
             chat_logger=logging.getLogger("chat"),
             messageHandler=self.broadcast_votes,

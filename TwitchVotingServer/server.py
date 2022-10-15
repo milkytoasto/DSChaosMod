@@ -27,8 +27,8 @@ if __name__ == "__main__":
     )
     gui.init_settings_tab(
         saveHandler=lambda: [vh.load_config()],
-        channel=ch.get_option("TWITCH", "CHANNEL", "", type=str),
         tmiToken=ch.get_option("TWITCH", "TMI_TOKEN", "", type=str),
+        channel=ch.get_option("TWITCH", "CHANNEL", "", type=str),
         votingDuration=vh.votingDuration,
         effectDuration=vh.effectDuration,
     )
