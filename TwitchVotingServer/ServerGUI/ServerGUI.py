@@ -3,14 +3,16 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 from async_tkinter_loop import async_handler
+from ConfigHandler.ConfigHandler import ConfigHandler
 
 from .Theming.ChaosTheme import ChaosTheme
 from .utils.WidgetLogger import WidgetLogger
 
 
 class ServerGUI(ChaosTheme):
-    def __init__(self, title, websocket_server):
+    def __init__(self, title, configHandler, websocket_server):
         super().__init__(title)
+        self.configHandler = configHandler
         self.effect_settings = None
         self.__init_frames()
         self.__init_tabs()
@@ -92,13 +94,6 @@ class ServerGUI(ChaosTheme):
         logger = logging.getLogger(name)
         text_handler = WidgetLogger(text)
         logger.addHandler(text_handler)
-
-    def __save_settings(self, saveHandler):
-        for field in self.settingsFields:
-            field["state"] = "disabled"
-        saveHandler(self.settingsFieldValues)
-        for field in self.settingsFields:
-            field["state"] = "active"
 
     async def __quit(self, disconnect):
         await disconnect()
@@ -208,12 +203,27 @@ class ServerGUI(ChaosTheme):
             command=lambda: self.__save_settings(saveHandler),
         ).grid(row=10, column=10, padx=8, pady=8, sticky="se")
 
+    def __save_settings(self, saveHandler):
+        for field in self.settingsFields:
+            field["state"] = "disabled"
+        self.configHandler.save_config(self.settingsFieldValues)
+        saveHandler()
+        for field in self.settingsFields:
+            field["state"] = "active"
+
     def __save_effects(self, saveHandler):
-        saveHandler(self.effect_settings)
+        games = [key for key in self.configHandler.config["GAME_CONFIGS"]]
+        for game in games:
+            gameConfigHandler = ConfigHandler(
+                config_path="./config/"
+                + self.configHandler.config["GAME_CONFIGS"][game]
+            )
+            gameConfigHandler.save_config(self.effect_settings[game])
+        saveHandler()
 
     def __dropdown_select(self):
         game = self.selected_game.get()
-        game_effects = self.effect_settings[game]
+        game_sections = self.effect_settings[game]
 
         self.effectObjects = []
         self.effectBox.config(state="normal")
@@ -222,16 +232,30 @@ class ServerGUI(ChaosTheme):
         for effect in self.effectObjects:
             effect.destroy()
 
-        for effect in game_effects:
+        for section_name in game_sections:
             button = ttk.Checkbutton(
-                self.effectBox, text=f"{effect}", variable=game_effects[effect]
+                self.effectBox,
+                text=f"{section_name}",
+                variable=game_sections[section_name],
             )
             self.effectBox.window_create("end", window=button)
             self.effectBox.insert("end", "\n")
             self.effectObjects.append(button)
+
+            for effect_name in game_sections[section_name]:
+                button = ttk.Checkbutton(
+                    self.effectBox,
+                    text=f"{effect_name}",
+                    variable=game_sections[section_name][effect_name],
+                )
+                self.effectBox.insert("end", "  ")
+                self.effectBox.window_create("end", window=button)
+                self.effectBox.insert("end", "\n")
+                self.effectObjects.append(button)
+
         self.effectBox.config(state="disabled")
 
-    def init_effects_tab(self, saveHandler, configHandler):
+    def init_effects_tab(self, saveHandler):
         self.effectObjects = []
 
         left = ttk.Frame(self.effects_tab)
@@ -245,17 +269,26 @@ class ServerGUI(ChaosTheme):
 
         effect_settings = dict()
 
-        games = ["DARK_SOULS_REMASTERED", "DARK_SOULS_II", "DARK_SOULS_III"]
+        games = [key for key in self.configHandler.config["GAME_CONFIGS"]]
         game_options = []
 
         for game in games:
-            section = configHandler.get_section(game)
-            if section is not None:
-                game_options.append(game)
-                effect_settings[game] = dict()
-                for effect in section:
-                    new_var = tk.BooleanVar(self.root, value=section.getboolean(effect))
-                    effect_settings[game][effect] = new_var
+            gameConfigHandler = ConfigHandler(
+                config_path="./config/"
+                + self.configHandler.config["GAME_CONFIGS"][game]
+            )
+            effect_settings[game] = dict()
+
+            for section_name in gameConfigHandler.config.sections():
+                section = gameConfigHandler.get_section(section_name)
+                effect_settings[game][section_name] = dict()
+
+                for effect_name in section:
+                    effect_value = gameConfigHandler.config[section_name].getboolean(
+                        effect_name
+                    )
+                    new_var = tk.BooleanVar(self.root, value=effect_value)
+                    effect_settings[game][section_name][effect_name] = new_var
 
         self.effect_settings = effect_settings
 
@@ -264,7 +297,7 @@ class ServerGUI(ChaosTheme):
         self.selected_game = tk.StringVar()
         self.optionsMenu = ttk.Combobox(
             right,
-            values=game_options,
+            values=games,
             textvariable=self.selected_game,
             width=50,
         )
