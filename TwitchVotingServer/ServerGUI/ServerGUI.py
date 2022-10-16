@@ -65,7 +65,7 @@ class CheckboxSectionStore:
         self.button = ttk.Checkbutton(
             root,
             cursor="hand2",
-            text=f"{self.section_name}",
+            text=f"{self.section_name.upper().replace('_', ' ')}",
             variable=self.section_var,
             command=self.__checkbox_section_select,
         )
@@ -289,6 +289,7 @@ class ServerGUI(ChaosTheme):
     def __dropdown_select(self):
         game = self.selected_game.get()
         game_sections = self.effect_store.trees[game].sections
+        section_keys = list(game_sections.keys())
 
         self.effectObjects = []
         self.effectBox.config(state="normal")
@@ -297,12 +298,12 @@ class ServerGUI(ChaosTheme):
         for effect in self.effectObjects:
             effect.destroy()
 
-        for section_name in game_sections:
+        for section_name in section_keys:
             section = game_sections[section_name]
             button = section.create_button(self.effectBox)
 
             self.effectBox.window_create("end", window=button)
-            self.effectBox.insert("end", "\n")
+            self.effectBox.insert("end", "\n  ")
             self.effectObjects.append(button)
 
             for effect_name in section.option_vars:
@@ -310,13 +311,16 @@ class ServerGUI(ChaosTheme):
                 button = ttk.Checkbutton(
                     self.effectBox,
                     cursor="hand2",
-                    text=f"{effect_name}",
+                    text=f"{effect_name.upper().replace('_', ' ')}",
                     variable=option_var,
                 )
                 self.effectBox.insert("end", "  ")
                 self.effectBox.window_create("end", window=button)
-                self.effectBox.insert("end", "\n")
+                self.effectBox.insert("end", "\n  ")
                 self.effectObjects.append(button)
+
+            if section_name != section_keys[-1]:
+                self.effectBox.insert("end", "\n")
 
         self.effectBox.config(state="disabled")
 
@@ -327,7 +331,9 @@ class ServerGUI(ChaosTheme):
         right = ttk.Frame(self.effects_tab)
 
         vsb = ttk.Scrollbar(left, orient="vertical")
-        effectBox = tk.Text(left, width=40, height=20, yscrollcommand=vsb.set)
+        effectBox = tk.Text(
+            left, cursor="arrow", width=40, height=20, yscrollcommand=vsb.set
+        )
         vsb.config(command=effectBox.yview)
         effectBox.pack(side="left", fill="y")
         vsb.pack(side="left", fill="y", anchor="w")
@@ -366,6 +372,7 @@ class ServerGUI(ChaosTheme):
             textvariable=self.selected_game,
             width=50,
         )
+        self.optionsMenu.configure(cursor="target")
         self.optionsMenu.pack(
             side="top", anchor="n", fill="x", expand=True, padx=8, pady=8
         )

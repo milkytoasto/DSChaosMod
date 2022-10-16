@@ -48,7 +48,7 @@ class ChaosTheme:
             selectforeground="cyan",
             insertcolor=Colors.backgroundText,
             fieldbackground=Colors.background,
-            borderwidth=1,
+            borderwidth=0,
         )
 
         self.s.layout(
@@ -108,6 +108,9 @@ class ChaosTheme:
 
         self.s.configure(
             "TCombobox",
+            arrowsize=1,
+            bordercolor=Colors.primary,
+            borderwidth=5,
         )
         self.s.map(
             "TCombobox",
