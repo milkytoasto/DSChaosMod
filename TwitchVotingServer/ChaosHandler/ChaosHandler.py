@@ -1,8 +1,8 @@
 import asyncio
 import random
-from re import S
 
 import psutil
+from ConfigHandler.ConfigHandler import ConfigHandler
 from pymem import Pymem, process
 from pymem.exception import ProcessNotFound
 
@@ -22,13 +22,23 @@ class ChaosHandler:
 
     def load_config(self):
         self.available_effects = dict()
-        games = [DarkSoulsRemastered]
+        game_sections = self.configHandler.get_section("GAME_CONFIGS")
 
-        for game in games:
-            if (
-                game_section := self.configHandler.get_section(game.config_alias)
-            ) is not None:
-                self.available_effects[game.config_alias] = game_section
+        for game_name in game_sections:
+            gameConfigHandler = ConfigHandler(
+                config_path="./config/"
+                + self.configHandler.config["GAME_CONFIGS"][game_name]
+            )
+            self.available_effects[game_name] = dict()
+
+            for section_name in gameConfigHandler.config.sections():
+                section = gameConfigHandler.get_section(section_name)
+
+                for effect_name in section:
+                    effect_value = gameConfigHandler.config[section_name].getboolean(
+                        effect_name
+                    )
+                    self.available_effects[game_name][effect_name] = effect_value
 
     def get_options(self):
         if self.game is None:
@@ -36,18 +46,22 @@ class ChaosHandler:
 
         effect_options = []
         game = self.game
-        if game.config_alias in self.available_effects:
-            game_configs = self.available_effects[game.config_alias]
+
+        game_alias = game.config_alias.lower()
+
+        if game_alias in self.available_effects:
+            game_configs = self.available_effects[game_alias]
+
             for effect in game.effects:
-                if (
-                    effect.config_alias in game_configs
-                    and game_configs.getboolean(effect.config_alias) == True
-                ):
+                effect_alias = effect.config_alias.lower()
+                if effect_alias in game_configs and game_configs[effect_alias] == True:
                     effect_options.append(effect)
         else:
             effect_options = game.effects
 
-        self.sampled_options = random.sample(effect_options, k=3)
+        self.sampled_options = random.sample(
+            effect_options, k=min(3, len(effect_options))
+        )
         return self.sampled_options
 
     def get_existing_options(self):

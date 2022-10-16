@@ -8,15 +8,16 @@ from VotingHandler.VotingHandler import VotingHandler
 from WebsocketHandler.WebsocketHandler import WebsocketHandler
 
 if __name__ == "__main__":
-    config = configparser.ConfigParser()
-    config.read("config.ini")
-
-    ch = ConfigHandler(config)
+    ch = ConfigHandler(config_path="./config/config.ini")
     chaos = ChaosHandler(configHandler=ch)
     wsh = WebsocketHandler(port=7890)
     vh = VotingHandler(configHandler=ch, chaosHandler=chaos, websocketHandler=wsh)
 
-    gui = ServerGUI("Dark Souls Chaos Server", websocket_server=wsh.websocket_server)
+    gui = ServerGUI(
+        "Dark Souls Chaos Server",
+        configHandler=ch,
+        websocket_server=wsh.websocket_server,
+    )
     gui.init_commands(
         connect=vh.connect,
         disconnect=vh.disconnect,
@@ -25,15 +26,14 @@ if __name__ == "__main__":
         stop=vh.stop,
     )
     gui.init_settings_tab(
-        saveHandler=lambda fields: [ch.save_config(fields), vh.load_config()],
-        channel=ch.get_channel(),
-        tmiToken=ch.get_token(),
+        saveHandler=lambda: [vh.load_config()],
+        tmiToken=ch.get_option("TWITCH", "TMI_TOKEN", "", type=str),
+        channel=ch.get_option("TWITCH", "CHANNEL", "", type=str),
         votingDuration=vh.votingDuration,
         effectDuration=vh.effectDuration,
     )
     gui.init_effects_tab(
-        saveHandler=lambda fields: [ch.save_config(fields), chaos.load_config()],
-        configHandler=ch,
+        saveHandler=lambda: [chaos.load_config()],
     )
 
     async_mainloop(gui.root)

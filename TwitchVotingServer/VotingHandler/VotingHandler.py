@@ -12,6 +12,7 @@ class VotingHandler:
         self.current_effect = None
         self.enabled = asyncio.Event()
         self.connected = False
+        self.paused = False
         self.votes = {}
         self.websocketHandler = websocketHandler
         self.chaosHandler = chaosHandler
@@ -27,8 +28,8 @@ class VotingHandler:
         self.connected = True
 
         self.bot = TwitchBot(
-            token=self.configHandler.get_token(),
-            channel=self.configHandler.get_channel(),
+            token=self.configHandler.get_option("TWITCH", "TMI_TOKEN", "", type=str),
+            channel=self.configHandler.get_option("TWITCH", "CHANNEL", "", type=str),
             debug_logger=self.debug_logger,
             chat_logger=logging.getLogger("chat"),
             messageHandler=self.broadcast_votes,
@@ -72,22 +73,28 @@ class VotingHandler:
             stopped()
             return
 
+        if not self.paused:
+            self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
+        self.paused = False
         self.enabled.set()
 
     def pause(self):
+        self.paused = True
         self.enabled.clear()
 
     def stop(self):
+        self.paused = False
         self.enabled.clear()
         self.load_config()
         self.bot.init_votes(
             self.acceptingVotes, self.chaosHandler.get_existing_options()
         )
-        self.current_effect.cancel()
+
+        if self.current_effect is not None:
+            self.current_effect.cancel()
 
     async def voting_controller(self):
         await self.enabled.wait()
-        self.bot.init_votes(self.acceptingVotes, self.chaosHandler.get_options())
 
         while self.connected:
             await self.enabled.wait()

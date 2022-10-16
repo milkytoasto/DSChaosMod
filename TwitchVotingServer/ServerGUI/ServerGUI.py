@@ -3,15 +3,80 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 from async_tkinter_loop import async_handler
+from ConfigHandler.ConfigHandler import ConfigHandler
 
 from .Theming.ChaosTheme import ChaosTheme
 from .utils.WidgetLogger import WidgetLogger
 
 
+class CheckboxCollectionStore:
+    def __init__(self):
+        self.trees = dict()
+
+    def to_dict(self):
+        result = dict()
+        for tree in self.trees:
+            result[tree] = self.trees[tree].to_dict()
+        return result
+
+    def add(self, tree_name, tree):
+        tree.root = self
+        self.trees[tree_name] = tree
+
+
+class CheckboxTreeStore:
+    def __init__(self, name):
+        self.parent = None
+        self.tree_name = name
+        self.sections = dict()
+
+    def to_dict(self):
+        result = dict()
+        for section in self.sections:
+            result[section] = self.sections[section].option_vars
+        return result
+
+    def add(self, section_name, section):
+        section.tree = self
+        self.sections[section_name] = section
+
+
+class CheckboxSectionStore:
+    def __init__(self, name):
+        self.tree = None
+        self.section_name = name
+        self.section_var = None
+        self.option_vars = dict()
+
+    def __checkbox_section_select(self):
+        value = self.section_var.get()
+        for option in self.option_vars:
+            self.option_vars[option].set(value)
+
+    def create_section_var(self, root):
+        self.section_var = tk.BooleanVar(root, value=True)
+        for option in self.option_vars.values():
+            if option.get() == False:
+                self.section_var.set(False)
+                return self.section_var
+        return self.section_var
+
+    def create_button(self, root):
+        self.button = ttk.Checkbutton(
+            root,
+            cursor="hand2",
+            text=f"{self.section_name}",
+            variable=self.section_var,
+            command=self.__checkbox_section_select,
+        )
+        return self.button
+
+
 class ServerGUI(ChaosTheme):
-    def __init__(self, title, websocket_server):
+    def __init__(self, title, configHandler, websocket_server):
         super().__init__(title)
-        self.effect_settings = None
+        self.configHandler = configHandler
+        self.effect_store = CheckboxCollectionStore()
         self.__init_frames()
         self.__init_tabs()
         self.__init_logging_tab(self.debug_tab, "debug")
@@ -92,13 +157,6 @@ class ServerGUI(ChaosTheme):
         logger = logging.getLogger(name)
         text_handler = WidgetLogger(text)
         logger.addHandler(text_handler)
-
-    def __save_settings(self, saveHandler):
-        for field in self.settingsFields:
-            field["state"] = "disabled"
-        saveHandler(self.settingsFieldValues)
-        for field in self.settingsFields:
-            field["state"] = "active"
 
     async def __quit(self, disconnect):
         await disconnect()
@@ -208,12 +266,29 @@ class ServerGUI(ChaosTheme):
             command=lambda: self.__save_settings(saveHandler),
         ).grid(row=10, column=10, padx=8, pady=8, sticky="se")
 
+    def __save_settings(self, saveHandler):
+        for field in self.settingsFields:
+            field["state"] = "disabled"
+        self.configHandler.save_config(self.settingsFieldValues)
+        saveHandler()
+        for field in self.settingsFields:
+            field["state"] = "active"
+
     def __save_effects(self, saveHandler):
-        saveHandler(self.effect_settings)
+        games = [key for key in self.configHandler.config["GAME_CONFIGS"]]
+        store = self.effect_store.to_dict()
+
+        for game in games:
+            gameConfigHandler = ConfigHandler(
+                config_path="./config/"
+                + self.configHandler.config["GAME_CONFIGS"][game]
+            )
+            gameConfigHandler.save_config(store[game])
+        saveHandler()
 
     def __dropdown_select(self):
         game = self.selected_game.get()
-        game_effects = self.effect_settings[game]
+        game_sections = self.effect_store.trees[game].sections
 
         self.effectObjects = []
         self.effectBox.config(state="normal")
@@ -222,16 +297,30 @@ class ServerGUI(ChaosTheme):
         for effect in self.effectObjects:
             effect.destroy()
 
-        for effect in game_effects:
-            button = ttk.Checkbutton(
-                self.effectBox, text=f"{effect}", variable=game_effects[effect]
-            )
+        for section_name in game_sections:
+            section = game_sections[section_name]
+            button = section.create_button(self.effectBox)
+
             self.effectBox.window_create("end", window=button)
             self.effectBox.insert("end", "\n")
             self.effectObjects.append(button)
+
+            for effect_name in section.option_vars:
+                option_var = section.option_vars[effect_name]
+                button = ttk.Checkbutton(
+                    self.effectBox,
+                    cursor="hand2",
+                    text=f"{effect_name}",
+                    variable=option_var,
+                )
+                self.effectBox.insert("end", "  ")
+                self.effectBox.window_create("end", window=button)
+                self.effectBox.insert("end", "\n")
+                self.effectObjects.append(button)
+
         self.effectBox.config(state="disabled")
 
-    def init_effects_tab(self, saveHandler, configHandler):
+    def init_effects_tab(self, saveHandler):
         self.effectObjects = []
 
         left = ttk.Frame(self.effects_tab)
@@ -243,28 +332,37 @@ class ServerGUI(ChaosTheme):
         effectBox.pack(side="left", fill="y")
         vsb.pack(side="left", fill="y", anchor="w")
 
-        effect_settings = dict()
-
-        games = ["DARK_SOULS_REMASTERED", "DARK_SOULS_II", "DARK_SOULS_III"]
+        games = [key for key in self.configHandler.config["GAME_CONFIGS"]]
         game_options = []
 
-        for game in games:
-            section = configHandler.get_section(game)
-            if section is not None:
-                game_options.append(game)
-                effect_settings[game] = dict()
-                for effect in section:
-                    new_var = tk.BooleanVar(self.root, value=section.getboolean(effect))
-                    effect_settings[game][effect] = new_var
+        for game_name in games:
+            game_store = CheckboxTreeStore(game_name)
+            gameConfigHandler = ConfigHandler(
+                config_path="./config/"
+                + self.configHandler.config["GAME_CONFIGS"][game_name]
+            )
 
-        self.effect_settings = effect_settings
+            for section_name in gameConfigHandler.config.sections():
+                section_store = CheckboxSectionStore(section_name)
+                section = gameConfigHandler.get_section(section_name)
+
+                for effect_name in section:
+                    effect_value = gameConfigHandler.config[section_name].getboolean(
+                        effect_name
+                    )
+                    new_var = tk.BooleanVar(self.root, value=effect_value)
+                    section_store.option_vars[effect_name] = new_var
+                section_store.create_section_var(self.root)
+                game_store.add(section_name, section_store)
+            self.effect_store.add(game_name, game_store)
 
         effectBox["state"] = "disabled"
         self.effectBox = effectBox
         self.selected_game = tk.StringVar()
         self.optionsMenu = ttk.Combobox(
             right,
-            values=game_options,
+            state="readonly",
+            values=games,
             textvariable=self.selected_game,
             width=50,
         )

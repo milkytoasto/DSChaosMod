@@ -1,5 +1,12 @@
+import configparser
+
+
 class ConfigHandler:
-    def __init__(self, config):
+    def __init__(self, config_path):
+        self.config_path = config_path
+
+        config = configparser.ConfigParser()
+        config.read(self.config_path)
         self.config = config
 
     def save_config(self, fields):
@@ -8,7 +15,7 @@ class ConfigHandler:
                 if (value := fields[section][option].get()) is not None:
                     self.config.set(section, option, str(value))
 
-        with open("config.ini", "w") as configfile:
+        with open(self.config_path, "w") as configfile:
             self.config.write(configfile)
 
     def get_section(self, section):
@@ -26,9 +33,3 @@ class ConfigHandler:
             if type is float:
                 return self.config[section].getfloat(option)
         return default_value
-
-    def get_channel(self):
-        return self.get_option("TWITCH", "CHANNEL", "", type=str)
-
-    def get_token(self):
-        return self.get_option("TWITCH", "TMI_TOKEN", "", type=str)
