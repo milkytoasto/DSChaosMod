@@ -1,6 +1,8 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 
+from pygments import highlight
+
 from .Colors import Colors
 
 
@@ -11,8 +13,8 @@ class ChaosTheme:
         root.grid_rowconfigure(1, weight=1)
         root.grid_columnconfigure(0, weight=1)
 
-        width = 600
-        height = 350
+        width = 800
+        height = 500
 
         root.geometry(f"{width}x{height}")
         root.minsize(width, height)
@@ -28,13 +30,13 @@ class ChaosTheme:
         self.__configure_style()
 
     def __configure_style(self):
-        self.root.option_add("*font", "segoe-ui 10 bold")
+        self.root.option_add("*font", "segoe-ui 12 bold")
 
         self.s = ttk.Style()
         self.s.theme_use("clam")
         self.s.configure(
             ".",
-            font=("Segoe Ui", 10, "bold"),
+            font=("Segoe Ui", 12, "bold"),
             background=Colors.background,
             foreground=Colors.backgroundText,
             bordercolor=Colors.border,
@@ -47,7 +49,6 @@ class ChaosTheme:
             insertcolor=Colors.backgroundText,
             fieldbackground=Colors.background,
             borderwidth=1,
-            relief="flat",
         )
 
         self.s.layout(
@@ -85,16 +86,44 @@ class ChaosTheme:
             ],
         )
 
+        self.s.map(
+            "TEntry",
+            selectbackground=[("!focus", Colors.background)],
+            selectforeground=[("!focus", Colors.backgroundText)],
+        )
+
         self.s.configure(
             "TButton",
-            background=Colors.secondary,
-            foreground=Colors.secondaryText,
+            background=Colors.primary,
+            foreground=Colors.primaryText,
         )
         self.s.map(
             "TButton",
             background=[
                 ("selected", Colors.primary),
-                ("active", Colors.primary),
+                ("active", Colors.primaryHover),
+                ("disabled", Colors.disabled),
+            ],
+        )
+
+        self.s.configure(
+            "TCombobox",
+        )
+        self.s.map(
+            "TCombobox",
+            fieldbackground=[("readonly", Colors.background)],
+            selectbackground=[("readonly", "")],
+            selectforeground=[("readonly", Colors.primaryText)],
+        )
+
+        self.s.configure(
+            "TCheckbutton",
+        )
+        self.s.map(
+            "TCheckbutton",
+            background=[
+                ("selected", Colors.primary),
+                ("active", Colors.primaryHover),
                 ("disabled", Colors.disabled),
             ],
         )
@@ -147,7 +176,7 @@ class ChaosTheme:
             "TNotebook.Tab",
             background=[
                 ("selected", Colors.primary),
-                ("active", Colors.primary),
+                ("active", Colors.primaryHover),
                 ("disabled", Colors.disabled),
             ],
             lightcolor=[],  # Overriding clam lightcolor list

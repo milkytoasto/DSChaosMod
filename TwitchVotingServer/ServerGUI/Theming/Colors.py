@@ -5,6 +5,9 @@ class Colors:
     primary = "#1c54b2"
     primaryText = "white"
 
+    primaryHover = "#548ae4"
+    primaryHoverText = "white"
+
     secondary = "#212121"
     secondaryText = "white"
 
