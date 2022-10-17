@@ -7,16 +7,14 @@ class DisableHUD(BaseEffect):
     name = "Disable HUD"
     config_alias = "disable_hud"
 
-    @classmethod
-    async def onStart(cls, pm, module):
+    async def onStart(self, pm, module):
         BaseB = BaseAddress.BaseB(pm, module)
         HUDPointer = PointerAddress.HUD(pm, BaseB)
 
         memory.write_bytes(pm.process_handle, HUDPointer, b"\x00", 1)
-        await cls.tick(cls.seconds, pm, module)
+        await self.tick(self.seconds, pm, module)
 
-    @classmethod
-    async def onStop(cls, pm, module):
+    async def onStop(self, pm, module):
         BaseB = BaseAddress.BaseB(pm, module)
         HUDPointer = PointerAddress.HUD(pm, BaseB)
 

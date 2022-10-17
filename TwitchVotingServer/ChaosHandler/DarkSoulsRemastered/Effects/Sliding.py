@@ -7,13 +7,11 @@ class Sliding(BaseEffect):
     name = "Sliding"
     config_alias = "sliding"
 
-    @classmethod
-    async def onStart(cls, pm, module):
+    async def onStart(self, pm, module):
         BaseX = BaseAddress.BaseX(pm, module)
         SlidePointer = PointerAddress.Slide(pm, BaseX)
 
-        await cls.tick(cls.seconds, pm, SlidePointer)
+        await self.tick(self.seconds, pm, SlidePointer)
 
-    @classmethod
-    async def onTick(cls, pm, SlidePointer):
+    async def onTick(self, pm, SlidePointer):
         memory.write_bytes(pm.process_handle, SlidePointer, b"\x01", 1)

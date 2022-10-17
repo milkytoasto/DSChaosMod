@@ -3,49 +3,44 @@ import asyncio
 
 class BaseEffect:
     name = "Base Effect"
-    running = False
-    seconds: int
     config_alias = "base_effect"
 
-    @classmethod
-    async def start(cls, *args):
-        if not cls.running:
-            cls.running = True
-            await cls.onStart(*args)
+    def __init__(self, seconds):
+        self.running = False
+        self.seconds = seconds
 
-    @classmethod
-    async def onStart(cls, *args):
+    async def start(self, *args):
+        if not self.running:
+            self.running = True
+            await self.onStart(*args)
+
+    async def onStart(self, *args):
         pass
 
-    @classmethod
-    def cancel(cls):
-        cls.running = False
+    def cancel(self):
+        self.running = False
 
-    @classmethod
-    async def tick(cls, seconds=None, *args):
+    async def tick(self, seconds=None, *args):
         if seconds is None:
-            seconds = cls.seconds
+            seconds = self.seconds
 
         i = 0
         while i < seconds:
-            if cls.running:
-                await cls.onTick(*args)
+            if self.running:
+                await self.onTick(*args)
                 await asyncio.sleep(1)
             else:
-                await cls.onStop(*args)
+                await self.onStop(*args)
                 return
             i = i + 1
 
-    @classmethod
-    async def onTick(cls, *args):
+    async def onTick(self, *args):
         pass
 
-    @classmethod
-    async def stop(cls, *args):
-        if cls.running:
-            cls.running = False
-            await cls.onStop(*args)
+    async def stop(self, *args):
+        if self.running:
+            self.running = False
+            await self.onStop(*args)
 
-    @classmethod
-    async def onStop(cls, *args):
+    async def onStop(self, *args):
         pass

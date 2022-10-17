@@ -7,16 +7,14 @@ class BigHead(BaseEffect):
     name = "Big Head Mode"
     config_alias = "big_head"
 
-    @classmethod
-    async def onStart(cls, pm, module):
+    async def onStart(self, pm, module):
         BaseB = BaseAddress.BaseB(pm, module)
         HeadPointer = PointerAddress.PlayerHeadSize(pm, BaseB)
 
         memory.write_float(pm.process_handle, HeadPointer, 20)
-        await cls.tick(cls.seconds, pm, module)
+        await self.tick(self.seconds, pm, module)
 
-    @classmethod
-    async def onStop(cls, pm, module):
+    async def onStop(self, pm, module):
         BaseB = BaseAddress.BaseB(pm, module)
         HeadPointer = PointerAddress.PlayerHeadSize(pm, BaseB)
 

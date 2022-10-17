@@ -7,16 +7,14 @@ class Blind(BaseEffect):
     name = "Blinded"
     config_alias = "blind"
 
-    @classmethod
-    async def onStart(cls, pm, module):
+    async def onStart(self, pm, module):
         BaseCAR = BaseAddress.BaseCAR(pm, module)
         DrawDistancePointer = PointerAddress.DrawDistance(pm, BaseCAR)
 
         memory.write_float(pm.process_handle, DrawDistancePointer, 1)
-        await cls.tick(cls.seconds, pm, module)
+        await self.tick(self.seconds, pm, module)
 
-    @classmethod
-    async def onStop(cls, pm, module):
+    async def onStop(self, pm, module):
         BaseCAR = BaseAddress.BaseCAR(pm, module)
         DrawDistancePointer = PointerAddress.DrawDistance(pm, BaseCAR)
 

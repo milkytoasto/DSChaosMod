@@ -7,16 +7,14 @@ class LowerDrawDistance(BaseEffect):
     name = "Lower Draw Distance"
     config_alias = "lower_draw_distance"
 
-    @classmethod
-    async def onStart(cls, pm, module):
+    async def onStart(self, pm, module):
         BaseCAR = BaseAddress.BaseCAR(pm, module)
         DrawDistancePointer = PointerAddress.DrawDistance(pm, BaseCAR)
 
         memory.write_float(pm.process_handle, DrawDistancePointer, 10)
-        await cls.tick(cls.seconds, pm, module)
+        await self.tick(self.seconds, pm, module)
 
-    @classmethod
-    async def onStop(cls, pm, module):
+    async def onStop(self, pm, module):
         BaseCAR = BaseAddress.BaseCAR(pm, module)
         DrawDistancePointer = PointerAddress.DrawDistance(pm, BaseCAR)
 

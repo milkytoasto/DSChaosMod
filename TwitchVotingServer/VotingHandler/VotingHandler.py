@@ -103,11 +103,7 @@ class VotingHandler:
 
             if self.remainingTime == 0:
                 if self.acceptingVotes:
-                    self.current_effect = self.bot.get_effect()
-                    self.current_effect.seconds = self.effectDuration
-                    self.debug_logger.info(
-                        f"Triggering {self.current_effect.name} effect"
-                    )
+                    self.current_effect = self.bot.get_effect()(self.effectDuration)
                     self.chaosHandler.trigger_effect(self.current_effect)
 
                 self.acceptingVotes = not self.acceptingVotes
