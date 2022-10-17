@@ -43,8 +43,8 @@ class BaseEffect:
     @classmethod
     async def stop(cls, *args):
         if cls.running:
-            await cls.onStop(*args)
             cls.running = False
+            await cls.onStop(*args)
 
     @classmethod
     async def onStop(cls, *args):

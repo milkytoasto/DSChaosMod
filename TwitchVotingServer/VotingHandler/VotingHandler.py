@@ -58,6 +58,7 @@ class VotingHandler:
 
         self.bot = None
         self.connected = False
+        self.enabled.clear()
         gui_disconnected()
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 

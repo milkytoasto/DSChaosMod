@@ -18,6 +18,7 @@ class TwitchBot(commands.Bot):
         self.debug_logger = debug_logger
         self.chat_logger = chat_logger
         self.channel = channel
+        self.votes = {}
 
     async def start(self):
         try:

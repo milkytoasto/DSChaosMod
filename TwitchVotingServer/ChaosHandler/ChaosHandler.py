@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import random
 
 import psutil
@@ -19,6 +20,7 @@ class ChaosHandler:
         self.game = None
         self.sampled_options = None
         self.configHandler = configHandler
+        self.debug_logger = logging.getLogger("debug")
 
     def load_config(self):
         self.available_effects = dict()
@@ -74,9 +76,20 @@ class ChaosHandler:
             await self.effect.wait()
             try:
                 await self.current_effect.start(self.pm, self.module)
+            except:
+                self.debug_logger.error(
+                    f"Ran into an error while starting the {self.current_effect.name} effect."
+                )
             finally:
-                await self.current_effect.stop(self.pm, self.module)
-            self.effect.clear()
+                self.effect.clear()
+                try:
+                    await self.current_effect.stop(self.pm, self.module)
+                except:
+                    self.debug_logger.error(
+                        f"Ran into an error while stopping the {self.current_effect.name} effect."
+                    )
+                finally:
+                    return
 
     def hook(self):
         self.__find_process()
