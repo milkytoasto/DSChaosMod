@@ -59,6 +59,7 @@ class VotingHandler:
         self.bot = None
         self.connected = False
         self.enabled.clear()
+        self.current_effect = None
         gui_disconnected()
         self.debug_logger.info(f"Tasks cancelled. Connect to Twitch to re-run tasks")
 
@@ -93,6 +94,8 @@ class VotingHandler:
 
         if self.current_effect is not None:
             self.current_effect.cancel()
+            self.current_effect = None
+            self.chaosHandler.effect.clear()
 
     async def voting_controller(self):
         await self.enabled.wait()
@@ -112,13 +115,24 @@ class VotingHandler:
                 self.remainingTime = (
                     self.votingDuration if self.acceptingVotes else self.effectDuration
                 )
+
+                while (
+                    self.enabled.is_set()
+                    and self.current_effect.remaining_seconds
+                    >= self.current_effect.seconds
+                ):
+                    self.broadcast_votes(self.bot.format_votes())
+                    await asyncio.sleep(1)
+
                 self.bot.init_votes(
                     self.acceptingVotes, self.chaosHandler.get_options()
                 )
             else:
                 self.broadcast_votes(self.bot.format_votes())
-
-            self.remainingTime -= 1
+                if self.current_effect is not None and self.current_effect.running:
+                    self.remainingTime = self.current_effect.remaining_seconds
+                else:
+                    self.remainingTime -= 1
 
     def broadcast_votes(self, votes):
         self.votes = votes
