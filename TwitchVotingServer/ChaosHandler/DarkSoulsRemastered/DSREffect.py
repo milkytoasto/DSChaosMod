@@ -11,15 +11,3 @@ class DSREffect(BaseEffect):
         return memory.read_bool(
             self.pm.process_handle, Pointer.Loading(self.pm, self.module)
         )
-
-    async def start(self, *args):
-        print(self.isLoading())
-        await super().start(*args)
-
-    async def tick(self, seconds=None, *args):
-        print(self.isLoading())
-        await super().tick(seconds, *args)
-
-    async def stop(self, *args):
-        print(self.isLoading())
-        await super().stop(*args)
