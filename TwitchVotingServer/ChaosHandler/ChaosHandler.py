@@ -50,7 +50,6 @@ class ChaosHandler:
         game = self.game
 
         game_alias = game.config_alias.lower()
-
         if game_alias in self.available_effects:
             game_configs = self.available_effects[game_alias]
 
@@ -114,9 +113,10 @@ class ChaosHandler:
             self.pm.process_handle, self.process_title
         )
 
-    def trigger_effect(self, effect):
-        self.current_effect = effect
+    def trigger_effect(self, effect, seconds):
+        self.current_effect = effect(seconds=seconds, pm=self.pm, module=self.module)
         self.effect.set()
+        return self.current_effect
 
     def __find_process(self):
         self.process_title = None
