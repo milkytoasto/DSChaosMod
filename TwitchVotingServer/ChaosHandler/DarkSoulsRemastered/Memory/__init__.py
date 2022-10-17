@@ -1,3 +1,3 @@
 from .BaseAddress import *
-from .PointerAddress import *
+from .Pointer import *
 from .Shellcode import *

@@ -1,15 +1,15 @@
-from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, PointerAddress
-from ChaosHandler.Effect import BaseEffect
+from ChaosHandler.DarkSoulsRemastered.DSREffect import DSREffect
+from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, Pointer
 from pymem import memory
 
 
-class Sliding(BaseEffect):
+class Sliding(DSREffect):
     name = "Sliding"
     config_alias = "sliding"
 
     async def onStart(self, pm, module):
         BaseX = BaseAddress.BaseX(pm, module)
-        SlidePointer = PointerAddress.Slide(pm, BaseX)
+        SlidePointer = Pointer.Slide(pm, BaseX)
 
         await self.tick(self.seconds, pm, SlidePointer)
 

@@ -1,9 +1,9 @@
+from ChaosHandler.DarkSoulsRemastered.DSREffect import DSREffect
 from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, ShellCode
-from ChaosHandler.Effect import BaseEffect
 from pymem import memory
 
 
-class WarpToBonfire(BaseEffect):
+class WarpToBonfire(DSREffect):
     name = "Warp to Bonfire"
     config_alias = "warp_to_bonfire"
 
