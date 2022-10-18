@@ -146,7 +146,9 @@ class ChaosTheme:
         )
 
         self.s.configure(
-            "TLabel", background=Colors.secondary, foreground=Colors.secondaryText
+            "TLabel",
+            background=Colors.secondary,
+            foreground=Colors.secondaryText,
         )
 
         self.s.layout(
@@ -155,16 +157,28 @@ class ChaosTheme:
                 (
                     "Vertical.Scrollbar.trough",
                     {
-                        "children": [("Vertical.Scrollbar.thumb", {"expand": "1"})],
+                        "children": [
+                            (
+                                "Vertical.Scrollbar.thumb",
+                                {"expand": "1"},
+                            )
+                        ],
                         "sticky": "ns",
                     },
                 )
             ],
         )
-        self.s.configure("Vertical.TScrollbar", background=Colors.primary, gripcount=0)
+        self.s.configure(
+            "Vertical.TScrollbar",
+            background=Colors.primary,
+            gripcount=0,
+        )
         self.s.map(
             "Vertical.TScrollbar",
-            background=[("active", Colors.primary), ("disabled", Colors.primary)],
+            background=[
+                ("active", Colors.primary),
+                ("disabled", Colors.primary),
+            ],
         )
 
         self.s.configure("TNotebook", tabmargins=[2, 5, 0, 0])

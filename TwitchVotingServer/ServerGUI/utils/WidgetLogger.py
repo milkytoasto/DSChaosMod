@@ -14,7 +14,10 @@ class WidgetLogger(logging.Handler):
         logging.Handler.__init__(self)
         self.setLevel(level)
         self.setFormatter(
-            logging.Formatter("[%(asctime)s]: %(message)s", datefmt="%d-%b-%y %H:%M:%S")
+            logging.Formatter(
+                "[%(asctime)s]: %(message)s",
+                datefmt="%d-%b-%y %H:%M:%S",
+            )
         )
         self.widget = widget
         self.widget.config(state="disabled")
@@ -28,7 +31,11 @@ class WidgetLogger(logging.Handler):
     def emit(self, record):
         self.widget.config(state="normal")
         # Append message (record) to the widget
-        self.widget.insert(tk.END, self.format(record) + "\n", record.levelname)
+        self.widget.insert(
+            tk.END,
+            self.format(record) + "\n",
+            record.levelname,
+        )
         self.widget.see(tk.END)  # Scroll to the bottom
         self.widget.config(state="disabled")
         self.widget.update()  # Refresh the widget

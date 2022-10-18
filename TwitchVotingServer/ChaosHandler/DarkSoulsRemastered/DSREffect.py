@@ -7,7 +7,8 @@ class DSREffect(BaseEffect):
     name = "Dark Souls Remastered Base Effect"
     config_alias = "DSR Base Effect"
 
-    def isLoading(self):
+    def is_loading(self):
         return memory.read_bool(
-            self.pm.process_handle, Pointer.Loading(self.pm, self.module)
+            self.pm.process_handle,
+            Pointer.Loading(self.pm, self.module),
         )

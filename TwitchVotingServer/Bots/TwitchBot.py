@@ -10,11 +10,15 @@ class TwitchBot(commands.Bot):
         channel,
         debug_logger,
         chat_logger,
-        messageHandler=False,
+        message_handler=False,
     ):
-        super().__init__(token=token, prefix="?", initial_channels=[channel])
-        self.acceptingVotes = False
-        self.messageHandler = messageHandler
+        super().__init__(
+            token=token,
+            prefix="?",
+            initial_channels=[channel],
+        )
+        self.accepting_votes = False
+        self.message_handler = message_handler
         self.debug_logger = debug_logger
         self.chat_logger = chat_logger
         self.channel = channel
@@ -26,11 +30,15 @@ class TwitchBot(commands.Bot):
         except:
             await self._http.session.close()
 
-    def init_votes(self, acceptingVotes, effects):
-        self.acceptingVotes = acceptingVotes
+    def init_votes(self, accepting_votes, effects):
+        self.accepting_votes = accepting_votes
 
         self.votes = {
-            str(index + 1): {"votes": set(), "name": effect.name, "effect": effect}
+            str(index + 1): {
+                "votes": set(),
+                "name": effect.name,
+                "effect": effect,
+            }
             for index, effect in enumerate(effects)
         }
 
@@ -48,8 +56,12 @@ class TwitchBot(commands.Bot):
         return result["effect"]
 
     async def event_ready(self):
-        self.debug_logger.info(f"TwitchBot: Logged onto Twitch WS as {self.nick}")
-        self.debug_logger.info(f"TwitchBot: Listening in on {self.channel}'s chat")
+        self.debug_logger.info(
+            f"TwitchBot: Logged onto Twitch WS as {self.nick}"
+        )
+        self.debug_logger.info(
+            f"TwitchBot: Listening in on {self.channel}'s chat"
+        )
 
     def format_votes(self):
         return {
@@ -69,5 +81,5 @@ class TwitchBot(commands.Bot):
 
         self.chat_logger.info(f"{author.name}: {content}")
 
-        if self.acceptingVotes and content in self.votes.keys():
+        if self.accepting_votes and content in self.votes.keys():
             self.votes[content]["votes"].add(message.author.name)

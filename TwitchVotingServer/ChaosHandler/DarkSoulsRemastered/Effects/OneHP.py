@@ -11,5 +11,8 @@ class OneHP(DSREffect):
         BaseX = BaseAddress.BaseX(pm, module)
         HealthPointer = Pointer.PlayerHP(pm, BaseX)
         memory.write_bytes(
-            pm.process_handle, HealthPointer, (1).to_bytes(4, "little"), 4
+            pm.process_handle,
+            HealthPointer,
+            (1).to_bytes(4, "little"),
+            4,
         )

@@ -25,7 +25,9 @@ class WebsocketHandler:
                             f"Websocket Handler: Someone said: {message}"
                         )
         except websockets.exceptions.ConnectionClosed as e:
-            debug_logger.info(f"Websocket Handler: A client has lost connection.")
+            debug_logger.info(
+                f"Websocket Handler: A client has lost connection."
+            )
         finally:
             self.clients.remove(websocket)
 
@@ -36,6 +38,11 @@ class WebsocketHandler:
             pass
 
     def broadcast(self, message):
+        """Broadcasts messages to websocket clients via an async task.
+
+        Args:
+            message (string): The message to broadcast.
+        """
         for websocket in self.clients:
             asyncio.create_task(self.send(websocket, message))
 

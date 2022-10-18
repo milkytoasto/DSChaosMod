@@ -23,6 +23,17 @@ class ConfigHandler:
             return self.config[section]
 
     def get_option(self, section, option, default_value, type=str):
+        """_summary_
+
+        Args:
+            section (string): The section header to pull the option from.
+            option (string): The option key value string to pull the value from.
+            default_value (any): Default value to return if the option is not found.
+            type (_type_, optional): Type of the configuration setting. Defaults to str.
+
+        Returns:
+            _type_: _description_
+        """
         if self.config.has_option(section, option):
             if type is str:
                 return self.config[section][option]

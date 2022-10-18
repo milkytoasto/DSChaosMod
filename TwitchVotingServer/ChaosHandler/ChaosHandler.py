@@ -15,34 +15,44 @@ class NoProcessFoundError(Exception):
 
 
 class ChaosHandler:
-    def __init__(self, configHandler):
+    def __init__(self, config_handler):
         self.effect = asyncio.Event()
         self.game = None
         self.sampled_options = None
-        self.configHandler = configHandler
+        self.config_handler = config_handler
         self.debug_logger = logging.getLogger("debug")
 
     def load_config(self):
         self.available_effects = dict()
-        game_sections = self.configHandler.get_section("GAME_CONFIGS")
+        game_sections = self.config_handler.get_section("GAME_CONFIGS")
 
         for game_name in game_sections:
-            gameConfigHandler = ConfigHandler(
+            game_config_handler = ConfigHandler(
                 config_path="./config/"
-                + self.configHandler.config["GAME_CONFIGS"][game_name]
+                + self.config_handler.config["GAME_CONFIGS"][game_name]
             )
             self.available_effects[game_name] = dict()
 
-            for section_name in gameConfigHandler.config.sections():
-                section = gameConfigHandler.get_section(section_name)
+            for section_name in game_config_handler.config.sections():
+                section = game_config_handler.get_section(section_name)
 
                 for effect_name in section:
-                    effect_value = gameConfigHandler.config[section_name].getboolean(
+                    effect_value = game_config_handler.config[
+                        section_name
+                    ].getboolean(effect_name)
+                    self.available_effects[game_name][
                         effect_name
-                    )
-                    self.available_effects[game_name][effect_name] = effect_value
+                    ] = effect_value
 
     def get_options(self):
+        """Selects a random sample from the list of available effects
+        for the current game, and returns the result.
+
+        Only grabs effects that are enabled in the configuration settings.
+
+        Returns:
+            list: Random sample of available effects to pull from.
+        """
         if self.game is None:
             return []
 
@@ -55,7 +65,10 @@ class ChaosHandler:
 
             for effect in game.effects:
                 effect_alias = effect.config_alias.lower()
-                if effect_alias in game_configs and game_configs[effect_alias] == True:
+                if (
+                    effect_alias in game_configs
+                    and game_configs[effect_alias] == True
+                ):
                     effect_options.append(effect)
         else:
             effect_options = game.effects
@@ -66,11 +79,17 @@ class ChaosHandler:
         return self.sampled_options
 
     def get_existing_options(self):
+        """Returns the pre-existing sampled list of effects.
+
+        Returns:
+            list: Random sample of available effects instantiated by get_options
+        """
         if self.sampled_options is not None:
             return self.sampled_options
         return self.get_options()
 
     async def effect_controller(self):
+        """Task for handling effect logic."""
         while True:
             await self.effect.wait()
             try:
@@ -96,6 +115,7 @@ class ChaosHandler:
                     return
 
     def hook(self):
+        """Hooks into a game using pymem."""
         self.__find_process()
 
         if self.process_title is None:
@@ -106,7 +126,9 @@ class ChaosHandler:
         try:
             pm = Pymem(self.process_title)
         except ProcessNotFound:
-            raise NoProcessFoundError(f"Process {self.process_title} not found")
+            raise NoProcessFoundError(
+                f"Process {self.process_title} not found"
+            )
 
         self.pm = pm
         self.module = process.module_from_name(
@@ -114,14 +136,32 @@ class ChaosHandler:
         )
 
     def trigger_effect(self, effect, seconds):
-        self.current_effect = effect(seconds=seconds, pm=self.pm, module=self.module)
+        """Triggers the effect passed in for the given duration of seconds.
+
+        Args:
+            effect (Effect): Effect to trigger.
+            seconds (int): Duration of the effect.
+
+        Returns:
+            effect: A reference to the instantiated effect
+        """
+        self.current_effect = effect(
+            seconds=seconds, pm=self.pm, module=self.module
+        )
         self.effect.set()
         return self.current_effect
 
     def __find_process(self):
+        """Helper method for finding a currently running process from
+        a list of processes.
+
+        Returns:
+            string: Title of the process discovered. None if not found.
+        """
         self.process_title = None
         for process in psutil.process_iter():
             if process.name() == DarkSoulsRemastered.process_title:
                 self.game = DarkSoulsRemastered
                 self.process_title = DarkSoulsRemastered.process_title
+                return self.process_title
         return self.process_title

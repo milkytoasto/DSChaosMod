@@ -62,4 +62,6 @@ class BaseAddress:
 
     @classmethod
     def HomewardCall(cls, pm, module):
-        return pattern.pattern_scan_module(pm.process_handle, module, AOBS.HomewardCall)
+        return pattern.pattern_scan_module(
+            pm.process_handle, module, AOBS.HomewardCall
+        )

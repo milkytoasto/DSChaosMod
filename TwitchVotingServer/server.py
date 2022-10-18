@@ -9,31 +9,20 @@ from WebsocketHandler.WebsocketHandler import WebsocketHandler
 
 if __name__ == "__main__":
     ch = ConfigHandler(config_path="./config/config.ini")
-    chaos = ChaosHandler(configHandler=ch)
+    chaos = ChaosHandler(config_handler=ch)
     wsh = WebsocketHandler(port=7890)
-    vh = VotingHandler(configHandler=ch, chaosHandler=chaos, websocketHandler=wsh)
+    vh = VotingHandler(
+        config_handler=ch,
+        chaos_handler=chaos,
+        websocket_handler=wsh,
+    )
 
     gui = ServerGUI(
         "Dark Souls Chaos Server",
-        configHandler=ch,
+        chaos_handler=chaos,
+        config_handler=ch,
+        voting_handler=vh,
         websocket_server=wsh.websocket_server,
-    )
-    gui.init_commands(
-        connect=vh.connect,
-        disconnect=vh.disconnect,
-        start=vh.start,
-        pause=vh.pause,
-        stop=vh.stop,
-    )
-    gui.init_settings_tab(
-        saveHandler=lambda: [vh.load_config()],
-        tmiToken=ch.get_option("TWITCH", "TMI_TOKEN", "", type=str),
-        channel=ch.get_option("TWITCH", "CHANNEL", "", type=str),
-        votingDuration=vh.votingDuration,
-        effectDuration=vh.effectDuration,
-    )
-    gui.init_effects_tab(
-        saveHandler=lambda: [chaos.load_config()],
     )
 
     async_mainloop(gui.root)
