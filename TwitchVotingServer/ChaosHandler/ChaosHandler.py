@@ -94,23 +94,23 @@ class ChaosHandler:
             await self.effect.wait()
             try:
                 self.debug_logger.info(
-                    f"ChaosHandler: Triggering the {self.current_effect.name} effect."
+                    f"Triggering the {self.current_effect.name} effect."
                 )
                 await self.current_effect.start(self.pm, self.module)
             except:
                 self.debug_logger.error(
-                    f"ChaosHandler: Ran into an error while starting the {self.current_effect.name} effect."
+                    f"Ran into an error while starting the {self.current_effect.name} effect."
                 )
             finally:
                 self.effect.clear()
                 try:
                     self.debug_logger.info(
-                        f"ChaosHandler: Stopping the {self.current_effect.name} effect."
+                        f"Stopping the {self.current_effect.name} effect."
                     )
                     await self.current_effect.stop(self.pm, self.module)
                 except:
                     self.debug_logger.error(
-                        f"ChaosHandler: Ran into an error while stopping the {self.current_effect.name} effect."
+                        f"Ran into an error while stopping the {self.current_effect.name} effect."
                     )
                     return
 

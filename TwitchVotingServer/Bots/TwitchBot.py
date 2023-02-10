@@ -56,12 +56,8 @@ class TwitchBot(commands.Bot):
         return result["effect"]
 
     async def event_ready(self):
-        self.debug_logger.info(
-            f"TwitchBot: Logged onto Twitch WS as {self.nick}"
-        )
-        self.debug_logger.info(
-            f"TwitchBot: Listening in on {self.channel}'s chat"
-        )
+        self.debug_logger.info(f"Logged onto Twitch WS as {self.nick}")
+        self.debug_logger.info(f"Listening in on {self.channel}'s chat")
 
     def format_votes(self):
         return {

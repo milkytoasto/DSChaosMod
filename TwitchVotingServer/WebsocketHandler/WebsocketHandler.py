@@ -11,23 +11,17 @@ class WebsocketHandler:
 
     async def handler(self, websocket, path):
         debug_logger = logging.getLogger("debug")
-        debug_logger.info(f"Websocket Handler: Client just connected.")
+        debug_logger.info(f"Client just connected.")
         self.clients.add(websocket)
 
         try:
             async for message in websocket:
-                debug_logger.info(
-                    f"Websocket Handler: Received message from client: {message}"
-                )
+                debug_logger.info(f"Received message from client: {message}")
                 for connection in self.clients:
                     if connection != websocket:
-                        await connection.send(
-                            f"Websocket Handler: Someone said: {message}"
-                        )
+                        await connection.send(f"Someone said: {message}")
         except websockets.exceptions.ConnectionClosed as e:
-            debug_logger.info(
-                f"Websocket Handler: A client has lost connection."
-            )
+            debug_logger.info(f"A client has lost connection.")
         finally:
             self.clients.remove(websocket)
 
@@ -48,5 +42,5 @@ class WebsocketHandler:
 
     async def websocket_server(self):
         logger = logging.getLogger("debug")
-        logger.info(f"Websocket Server: Listening on port {self.port}")
+        logger.info(f"Listening on port {self.port}")
         await websockets.serve(self.handler, "localhost", self.port)
