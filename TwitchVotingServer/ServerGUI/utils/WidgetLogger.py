@@ -15,7 +15,7 @@ class WidgetLogger(logging.Handler):
         self.setLevel(level)
         self.setFormatter(
             logging.Formatter(
-                "[%(asctime)s]: %(message)s",
+                "[%(asctime)s] %(levelname)s %(module)s - %(funcName)s: %(message)s",
                 datefmt="%d-%b-%y %H:%M:%S",
             )
         )
