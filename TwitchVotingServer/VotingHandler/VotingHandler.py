@@ -105,7 +105,7 @@ class VotingHandler:
         try:
             self.chaos_handler.hook()
         except NoProcessFoundError as e:
-            self.debug_logger.error(f"EXCEPTION: {e}")
+            self.debug_logger.error(f"{e}")
             stop_gui()
             return
 
