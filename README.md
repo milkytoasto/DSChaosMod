@@ -4,6 +4,8 @@
 
 DSChaosMod is a repository for adding a sort of 'Twitch integration' to Dark Souls, wherein viewers can vote in a streamer's chat to interact with their gameplay.
 
+Visit the [Wiki](https://github.com/milkytoasto/DSChaosMod/wiki) for specific details on contributing to this application.
+
 ## Project Structure
 
 The repository is broken up into two major parts, with much of the logic being handled by the server portion.
@@ -17,7 +19,7 @@ The repository is broken up into two major parts, with much of the logic being h
   - VotingHandler which handles the actual logic pertaining to the voting state.
   - WebsocketHandler for handling logic as it pertains to the websocket server.
   
-All of these parts rely on one another in one way or another, and communication with each other's modules asynchronously.
+All of these parts rely on one another in one way or another, and communicate with each other's modules asynchronously.
 
 ## Installing
 
