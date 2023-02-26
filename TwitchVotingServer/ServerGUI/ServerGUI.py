@@ -219,11 +219,11 @@ class ServerGUI(ChaosTheme):
         self.tmiTokenField = ttk.Entry(
             self.settings_tab, show="*", textvariable=self.tmiToken
         )
-        self.votingDurationLabel = ttk.Label(self.settings_tab, text="Voting Durection")
+        self.votingDurationLabel = ttk.Label(self.settings_tab, text="Voting Duration")
         self.votingDurationField = ttk.Entry(
             self.settings_tab, textvariable=self.votingDuration
         )
-        self.effectDurationLabel = ttk.Label(self.settings_tab, text="Voting Durection")
+        self.effectDurationLabel = ttk.Label(self.settings_tab, text="Effect Duration")
         self.effectDurationField = ttk.Entry(
             self.settings_tab, textvariable=self.effectDuration
         )

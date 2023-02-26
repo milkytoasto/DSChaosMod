@@ -118,6 +118,7 @@ class VotingHandler:
 
                 while (
                     self.enabled.is_set()
+                    and self.current_effect is not None
                     and self.current_effect.remaining_seconds
                     >= self.current_effect.seconds
                 ):

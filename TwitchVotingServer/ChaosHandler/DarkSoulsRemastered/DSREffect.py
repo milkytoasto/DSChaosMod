@@ -8,6 +8,7 @@ class DSREffect(BaseEffect):
     config_alias = "DSR Base Effect"
 
     def isLoading(self):
-        return memory.read_bool(
-            self.pm.process_handle, Pointer.Loading(self.pm, self.module)
-        )
+        pass
+        # return memory.read_bool(
+        #     self.pm.process_handle, Pointer.Loading(self.pm, self.module)
+        # )
