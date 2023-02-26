@@ -120,7 +120,7 @@ class VotingHandler:
                     self.enabled.is_set()
                     and self.current_effect is not None
                     and self.current_effect.remaining_seconds
-                    >= self.current_effect.seconds
+                    > self.current_effect.seconds
                 ):
                     self.broadcast_votes(self.bot.format_votes())
                     await asyncio.sleep(1)
