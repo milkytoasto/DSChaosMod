@@ -1,5 +1,24 @@
 # DSChaosMod
 
+## What is this?
+
+DSChaosMod is a repository for adding a sort of 'Twitch integration' to Dark Souls, wherein viewers can vote in a streamer's chat to interact with their gameplay.
+
+## Project Structure
+
+The repository is broken up into two major parts, with much of the logic being handled by the server portion.
+
+- TwitchVotingOverlay containing an html file with some basic styling meant to be used as a browser source. In the scripts for this html file is the logic for interacting with the sever part over websockets.
+- TwitchVoting Server containing many different handlers that work alongside one another, offering a websocket server that transmits messages to the overlay for display. Inside this server are:
+  - Bots containing the base logic for bots such as one for Twitch. As of this writing, the only bot in there is the Twitch bot. Any future platforms such as YouTube or the like should get one under here.
+  - ChaosHandler which handles the memory editing portion of the application. Effects are performed by reading/writing to the game's memory via the pymem package.
+  - ConfigHandler for reading/writing to config files for the app, such as user settings for the effects and Twitch integration settings.
+  - ServerGUI, containing the files relating the the application's user interface.
+  - VotingHandler which handles the actual logic pertaining to the voting state.
+  - WebsocketHandler for handling logic as it pertains to the websocket server.
+  
+All of these parts rely on one another in one way or another, and communication with each other's modules asynchronously.
+
 ## Installing
 
 1. Clone the repository using `git clone https://github.com/milkytoasto/DSChaosMod.git`
@@ -7,6 +26,7 @@
 3. `python -m pip install pipenv` to get the pipenv dependency
 4. `pipenv install --dev` to get both base and dev dependencies
 5. `pipenv run pre-commit install` to install the pre-commit hooks
+6. (Optional) `pipenv run pre-commit run -a` to run the pre-commit hooks. This will make sure they are operating as expected.
 
 And that should be all you need to get started on development. There is more planned with the mod as it is still in the early stages, so this is subject to change.
 
