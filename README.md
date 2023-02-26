@@ -6,21 +6,6 @@ DSChaosMod is a repository for adding a sort of 'Twitch integration' to Dark Sou
 
 Visit the [Wiki](https://github.com/milkytoasto/DSChaosMod/wiki) for specific details on contributing to this application.
 
-## Project Structure
-
-The repository is broken up into two major parts, with much of the logic being handled by the server portion.
-
-- TwitchVotingOverlay containing an html file with some basic styling meant to be used as a browser source. In the scripts for this html file is the logic for interacting with the sever part over websockets.
-- TwitchVoting Server containing many different handlers that work alongside one another, offering a websocket server that transmits messages to the overlay for display. Inside this server are:
-  - Bots containing the base logic for bots such as one for Twitch. As of this writing, the only bot in there is the Twitch bot. Any future platforms such as YouTube or the like should get one under here.
-  - ChaosHandler which handles the memory editing portion of the application. Effects are performed by reading/writing to the game's memory via the pymem package.
-  - ConfigHandler for reading/writing to config files for the app, such as user settings for the effects and Twitch integration settings.
-  - ServerGUI, containing the files relating the the application's user interface.
-  - VotingHandler which handles the actual logic pertaining to the voting state.
-  - WebsocketHandler for handling logic as it pertains to the websocket server.
-  
-All of these parts rely on one another in one way or another, and communicate with each other's modules asynchronously.
-
 ## Installing
 
 1. Clone the repository using `git clone https://github.com/milkytoasto/DSChaosMod.git`
