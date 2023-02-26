@@ -21,7 +21,8 @@ At this time I would recommend running `git update-index --assume-unchanged .\Tw
 
 ## Usage
 
-Currently there is a gui server that can be run by running the `server.py` file. A sample `client.py` file has been added to receive and print the messages the websocket server broadcasts.
+Currently there is a gui server that can be run by running the `server.py` file. 
+TwitchVotingOverlay has an html file that can be viewed in your browser or added to OBS as a browser source that will receive messages from the websocket server.
 
 To run the websocket server, press `Initialize Websocket Server`
 
