@@ -17,7 +17,7 @@ Visit the [Wiki](https://github.com/milkytoasto/DSChaosMod/wiki) for specific de
 
 And that should be all you need to get started on development. There is more planned with the mod as it is still in the early stages, so this is subject to change.
 
-At this time I would recommend running `git update-index --assume-unchanged .\TwitchVotingServer\config.ini` to prevent committing any secrets you may store in there.
+At this time I would recommend running `git update-index --assume-unchanged .\TwitchVotingServer\config\config.ini` to prevent committing any secrets you may store in there.
 
 ## Usage
 
