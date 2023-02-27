@@ -1,4 +1,4 @@
-import configparser
+import os
 
 from async_tkinter_loop import async_mainloop
 from ChaosHandler.ChaosHandler import ChaosHandler
@@ -8,7 +8,9 @@ from VotingHandler.VotingHandler import VotingHandler
 from WebsocketHandler.WebsocketHandler import WebsocketHandler
 
 if __name__ == "__main__":
-    ch = ConfigHandler(config_path="./config/config.ini")
+    ch = ConfigHandler(
+        config_path=os.path.join(os.path.dirname(__file__), f"config/config.ini")
+    )
     chaos = ChaosHandler(configHandler=ch)
     wsh = WebsocketHandler(port=7890)
     vh = VotingHandler(configHandler=ch, chaosHandler=chaos, websocketHandler=wsh)
