@@ -102,7 +102,6 @@ class VotingHandler:
 
         while self.connected:
             await self.enabled.wait()
-            await asyncio.sleep(1)
 
             if self.remainingTime == 0:
                 if self.acceptingVotes:
@@ -130,6 +129,8 @@ class VotingHandler:
                 )
             else:
                 self.broadcast_votes(self.bot.format_votes())
+                await asyncio.sleep(1)
+
                 if self.current_effect is not None and self.current_effect.running:
                     self.remainingTime = self.current_effect.remaining_seconds
                 else:
