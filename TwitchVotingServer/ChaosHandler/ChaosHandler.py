@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import random
 
 import psutil
@@ -27,10 +28,12 @@ class ChaosHandler:
         game_sections = self.configHandler.get_section("GAME_CONFIGS")
 
         for game_name in game_sections:
-            gameConfigHandler = ConfigHandler(
-                config_path="./config/"
-                + self.configHandler.config["GAME_CONFIGS"][game_name]
+            config_path = os.path.join(
+                os.path.dirname(__file__),
+                f'../config/{self.configHandler.config["GAME_CONFIGS"][game_name]}',
             )
+            gameConfigHandler = ConfigHandler(config_path=config_path)
+
             self.available_effects[game_name] = dict()
 
             for section_name in gameConfigHandler.config.sections():
