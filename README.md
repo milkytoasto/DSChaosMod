@@ -21,14 +21,16 @@ At this time I would recommend running `git update-index --assume-unchanged .\Tw
 
 ## Usage
 
-Currently there is a gui server that can be run by running the `server.py` file. 
-TwitchVotingOverlay has an HTML file that can be viewed in your browser or added to OBS as a browser source that will receive messages from the websocket server.
+Currently there is a GUI server that can be initiated by running the `server.py` file. 
 
-The websocket server now runs by default, and listens to port 7890. If you desire for some reason to change this, it will need to be changed in the corresponding HTML file as well.
+In the TwitchVotingOverlay directory you will find an HTML file that can be viewed in your browser or added to OBS as a browser source that will receive messages from the websocket server on port 7890. The websocket server itself now runs by default when the server file is ran, and listens to port 7890. If you desire for some reason to change this, it will need to be changed in the corresponding HTML file as well.
 
 `Connect to Twitch` will initialize the tasks to connect to Twitch as well as the actual voting handler.
+
 `Disconnect` will end the tasks and disconnect from Twitch.
 
 `Start` will initiate the voting handler and Twitch bot.
+
 `Pause` will pause the voting state so that it may be resumed again with `Start`.
+
 `Stop` will stop the voting handler as well as the Twitch bot.
