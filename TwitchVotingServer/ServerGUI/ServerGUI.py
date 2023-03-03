@@ -16,9 +16,10 @@ from .Theming.ChaosTheme import ChaosTheme
 
 
 class ServerGUI(ChaosTheme):
-    def __init__(self, title, configHandler, websocket_server):
+    def __init__(self, title, configHandler, websocket_server, http_server):
         super().__init__(title)
         self.configHandler = configHandler
+        self.http_server = http_server
         self.effect_store = CheckboxCollectionStore()
         self.__init_frames()
         self.__init_tabs()
@@ -54,17 +55,23 @@ class ServerGUI(ChaosTheme):
         self.stopButton["state"] = "disabled"
 
     def __init_frames(self):
+        self.tabs_frame = tk.Frame(self.root, pady=4, padx=4)
         self.connection_actions = ttk.LabelFrame(
             self.root, text="Connection", width=450, height=50, padding=[8, 0, 8, 8]
         )
         self.voting_actions = ttk.LabelFrame(
             self.root, text="Voting", width=450, height=50, padding=[8, 0, 8, 8]
         )
-        self.tabs_frame = tk.Frame(self.root, pady=8, padx=8)
+        self.pubsub_actions = ttk.LabelFrame(
+            self.root, text="PubSub", width=450, height=50, padding=[8, 0, 8, 8]
+        )
 
-        self.connection_actions.grid(row=0, pady=8, padx=8, sticky=tk.W)
-        self.voting_actions.grid(row=0, column=1, pady=8, padx=8, sticky=tk.W)
-        self.tabs_frame.grid(row=1, columnspan=20, sticky=tk.E + tk.W + tk.N + tk.S)
+        self.connection_actions.grid(row=0, pady=4, padx=4, sticky=tk.W)
+        self.voting_actions.grid(row=0, column=1, pady=4, padx=4, sticky=tk.W)
+        self.pubsub_actions.grid(row=1, column=1, pady=4, padx=4, sticky=tk.W + tk.N)
+        self.tabs_frame.grid(
+            row=2, column=0, columnspan=20, sticky=tk.E + tk.W + tk.N + tk.S
+        )
 
     def __init_tabs(self):
         self.tabControl = ttk.Notebook(self.tabs_frame)
@@ -79,7 +86,7 @@ class ServerGUI(ChaosTheme):
         self.tabControl.add(self.broadcast_tab, text="Broadcast")
         self.tabControl.add(self.settings_tab, text="Settings")
         self.tabControl.add(self.effects_tab, text="Effects")
-        self.tabControl.pack(expand=1, fill="both")
+        self.tabControl.pack(expand=0, fill="both")
 
     def __init_logging_tab(self, tab, name=""):
         # Logging configuration
@@ -136,11 +143,18 @@ class ServerGUI(ChaosTheme):
             self.voting_actions, text="Stop", command=lambda: [stop(), self.__stopped()]
         )
 
+        self.integrateButton = ttk.Button(
+            self.pubsub_actions,
+            text="Integrate",
+            command=lambda: [self.http_server.start()],
+        )
+
         self.connectButton.grid(row=0, column=0, padx=4)
         self.disconnectButton.grid(row=0, column=1, padx=4)
         self.startButton.grid(row=0, column=2, padx=4)
         self.pauseButton.grid(row=0, column=3, padx=4)
         self.stopButton.grid(row=0, column=4, padx=4)
+        self.integrateButton.grid(row=1, column=2, padx=4)
         self.__disconnected()
 
     def init_settings_tab(

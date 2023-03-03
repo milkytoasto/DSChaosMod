@@ -14,7 +14,7 @@ class ChaosTheme:
         root.grid_columnconfigure(0, weight=1)
 
         width = 800
-        height = 500
+        height = 600
 
         root.geometry(f"{width}x{height}")
         root.minsize(width, height)

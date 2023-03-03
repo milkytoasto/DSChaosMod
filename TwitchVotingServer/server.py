@@ -3,11 +3,13 @@ import os
 from async_tkinter_loop import async_mainloop
 from ChaosHandler.ChaosHandler import ChaosHandler
 from ConfigHandler.ConfigHandler import ConfigHandler
+from HTTPServer.UrlFragmentFetchServer import UrlFragmentFetchServer
 from ServerGUI.ServerGUI import ServerGUI
 from VotingHandler.VotingHandler import VotingHandler
 from WebsocketHandler.WebsocketHandler import WebsocketHandler
 
 if __name__ == "__main__":
+    http_server = UrlFragmentFetchServer()
     ch = ConfigHandler(
         config_path=os.path.join(os.path.dirname(__file__), f"config/config.ini")
     )
@@ -19,6 +21,7 @@ if __name__ == "__main__":
         "Dark Souls Chaos Server",
         configHandler=ch,
         websocket_server=wsh.websocket_server,
+        http_server=http_server,
     )
     gui.init_commands(
         connect=vh.connect,
