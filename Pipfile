@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 websockets = ">=10.3"
 async-tkinter-loop = ">=0.6.0"
-twitchio = ">=2.4.0"
+twitchio = ">=2.5.0"
 pymem = ">=1.8.3"
 psutil = "*"
 
