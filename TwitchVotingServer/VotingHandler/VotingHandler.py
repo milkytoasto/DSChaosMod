@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 
-from Bots.TwitchBot import TwitchBot
+from bots.twitch.bot import TwitchBot
 from ChaosHandler.ChaosHandler import NoProcessFoundError
 
 
@@ -32,7 +32,7 @@ class VotingHandler:
             channel=self.configHandler.get_option("TWITCH", "CHANNEL", "", type=str),
             debug_logger=self.debug_logger,
             chat_logger=logging.getLogger("chat"),
-            messageHandler=self.broadcast_votes,
+            message_handler=self.broadcast_votes,
         )
 
         loop = asyncio.get_event_loop()

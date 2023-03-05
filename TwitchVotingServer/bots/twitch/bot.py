@@ -2,7 +2,7 @@ import random
 import webbrowser
 
 import requests
-from Bots import scopes
+from bots.twitch import scopes
 from HTTPServer.UrlFragmentFetchServer import UrlFragmentFetchServer
 from twitchio.ext import commands, pubsub
 
@@ -14,16 +14,16 @@ class TwitchBot(commands.Bot):
         channel,
         debug_logger,
         chat_logger,
-        messageHandler=False,
+        message_handler=False,
     ):
-        self.channel = channel
-        self.votes = {}
-        self._fragment_fetch_server = UrlFragmentFetchServer()
         super().__init__(token=token, prefix="?", initial_channels=[channel])
-        self.acceptingVotes = False
-        self.messageHandler = messageHandler
+        self.channel = channel
+        self.accepting_votes = False
+        self.message_handler = message_handler
         self.debug_logger = debug_logger
         self.chat_logger = chat_logger
+        self.votes = {}
+        self._fragment_fetch_server = UrlFragmentFetchServer()
 
     async def subscribe(self, token):
         self.pubsub = pubsub.PubSubPool(self)
@@ -42,7 +42,7 @@ class TwitchBot(commands.Bot):
 
         if access_token:
             await self.subscribe(access_token)
-        print("Calling back")
+
         callback()
 
     async def generate_access_token(self, callback):
@@ -79,8 +79,8 @@ class TwitchBot(commands.Bot):
         except:
             await self._http.session.close()
 
-    def init_votes(self, acceptingVotes, effects):
-        self.acceptingVotes = acceptingVotes
+    def init_votes(self, accepting_votes, effects):
+        self.accepting_votes = accepting_votes
 
         self.votes = {
             str(index + 1): {"votes": set(), "name": effect.name, "effect": effect}
@@ -122,5 +122,5 @@ class TwitchBot(commands.Bot):
 
         self.chat_logger.info(f"{author.name}: {content}")
 
-        if self.acceptingVotes and content in self.votes.keys():
+        if self.accepting_votes and content in self.votes.keys():
             self.votes[content]["votes"].add(message.author.name)
