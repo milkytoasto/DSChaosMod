@@ -1,5 +1,5 @@
-from ChaosHandler.DarkSoulsRemastered.DSREffect import DSREffect
-from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, ShellCode
+from chaos.dark_souls_remastered.dsr_effect import DSREffect
+from chaos.dark_souls_remastered.memory import BaseAddress, ShellCode
 from pymem import memory
 
 

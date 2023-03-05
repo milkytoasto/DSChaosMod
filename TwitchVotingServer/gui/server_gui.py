@@ -4,7 +4,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 from async_tkinter_loop import async_handler
-from ConfigHandler.ConfigHandler import ConfigHandler
+from config_handler.config_handler import ConfigHandler
 
 from .components.checkbox_collection import (
     CheckboxCollectionStore,
@@ -153,48 +153,33 @@ class ServerGUI(ChaosTheme):
         self._connect_button = ttk.Button(
             self._connection_actions,
             text="Connect to Twitch",
-            command=lambda: [
-                self._connected(),
-                async_handler(self._voting_handler.connect)(self._disconnected),
-            ],
+            command=self._connect_button_clicked,
         )
         self._disconnect_button = ttk.Button(
             self._connection_actions,
             text="Disconnect",
-            command=lambda: [
-                async_handler(self._voting_handler.disconnect)(),
-                self._disconnected(),
-            ],
+            command=self._disconnect_button_clicked,
         )
-        self.root.protocol(
-            "WM_DELETE_WINDOW",
-            lambda: [async_handler(self._quit)(self._voting_handler.disconnect)],
-        )
+        self.root.protocol("WM_DELETE_WINDOW", self._on_window_close)
         self._start_button = ttk.Button(
             self._voting_actions,
             text="Start",
-            command=lambda: [
-                self._started(),
-                self._voting_handler.start(self._stopped),
-            ],
+            command=self._start_button_clicked,
         )
         self._pause_button = ttk.Button(
             self._voting_actions,
             text="Pause",
-            command=lambda: [self._voting_handler.pause(), self._paused()],
+            command=self._pause_button_clicked,
         )
         self._stop_button = ttk.Button(
             self._voting_actions,
             text="Stop",
-            command=lambda: [self._voting_handler.stop(), self._stopped()],
+            command=self._stop_button_clicked,
         )
         self._integrate_button = ttk.Button(
             self._pubsub_actions,
             text="Integrate",
-            command=lambda: [
-                self._integrate(),
-                async_handler(self._voting_handler.integrate)(self._http_server_closed),
-            ],
+            command=self._integrate_button_clicked,
         )
 
         self._connect_button.grid(row=0, column=0, padx=4)
@@ -204,6 +189,33 @@ class ServerGUI(ChaosTheme):
         self._stop_button.grid(row=0, column=4, padx=4)
         self._integrate_button.grid(row=1, column=2, padx=4)
         self._disconnected()
+
+    def _connect_button_clicked(self):
+        self._connected()
+        async_handler(self._voting_handler.connect)(self._disconnected)
+
+    def _disconnect_button_clicked(self):
+        async_handler(self._voting_handler.disconnect)()
+        self._disconnected()
+
+    def _on_window_close(self):
+        async_handler(self._quit)(self._voting_handler.disconnect)
+
+    def _start_button_clicked(self):
+        self._started()
+        self._voting_handler.start(self._stopped)
+
+    def _pause_button_clicked(self):
+        self._voting_handler.pause()
+        self._paused()
+
+    def _stop_button_clicked(self):
+        self._voting_handler.stop()
+        self._stopped()
+
+    def _integrate_button_clicked(self):
+        self._integrate()
+        async_handler(self._voting_handler.integrate)(self._http_server_closed)
 
     def init_settings_tab(
         self,
@@ -278,7 +290,29 @@ class ServerGUI(ChaosTheme):
         for field in self._settings_fields:
             field["state"] = "active"
 
-    def init_effects_tab(self, saveHandler):
+    def create_game_store(self, game_name):
+        game_store = CheckboxTreeStore(game_name)
+        config_path = os.path.join(
+            os.path.dirname(__file__),
+            f'../config/{self._config_handler.config["GAME_CONFIGS"][game_name]}',
+        )
+        game_config_handler = ConfigHandler(config_path=config_path)
+
+        for section_name in game_config_handler.config.sections():
+            section_store = CheckboxSectionStore(section_name)
+            section = game_config_handler.get_section(section_name)
+
+            for effect_name in section:
+                effect_value = game_config_handler.config[section_name].getboolean(
+                    effect_name
+                )
+                new_var = tk.BooleanVar(self.root, value=effect_value)
+                section_store.option_vars[effect_name] = new_var
+            section_store.create_section_var(self.root)
+            game_store.add(section_name, section_store)
+        return game_store
+
+    def init_effects_tab(self, save_handler):
         left = ttk.Frame(self._effects_tab)
         right = ttk.Frame(self._effects_tab)
 
@@ -294,25 +328,7 @@ class ServerGUI(ChaosTheme):
         game_options = []
 
         for game_name in games:
-            game_store = CheckboxTreeStore(game_name)
-            config_path = os.path.join(
-                os.path.dirname(__file__),
-                f'../config/{self._config_handler.config["GAME_CONFIGS"][game_name]}',
-            )
-            game_config_handler = ConfigHandler(config_path=config_path)
-
-            for section_name in game_config_handler.config.sections():
-                section_store = CheckboxSectionStore(section_name)
-                section = game_config_handler.get_section(section_name)
-
-                for effect_name in section:
-                    effect_value = game_config_handler.config[section_name].getboolean(
-                        effect_name
-                    )
-                    new_var = tk.BooleanVar(self.root, value=effect_value)
-                    section_store.option_vars[effect_name] = new_var
-                section_store.create_section_var(self.root)
-                game_store.add(section_name, section_store)
+            game_store = self.create_game_store(game_name)
             self._effect_store.add(game_name, game_store)
 
         effect_box["state"] = "disabled"
@@ -336,7 +352,7 @@ class ServerGUI(ChaosTheme):
         self._save_settings = ttk.Button(
             right,
             text="Save Effects",
-            command=lambda: self._save_effects(saveHandler),
+            command=lambda: self._save_effects(save_handler),
         ).pack(side="right", anchor="s", padx=8, pady=8)
 
         left.pack(side="left", fill="y")
@@ -364,23 +380,16 @@ class ServerGUI(ChaosTheme):
         game_sections = self._effect_store.trees[game].sections
         section_keys = list(game_sections.keys())
 
-        effect_objects = []
         self._effect_box.config(state="normal")
         self._effect_box.delete("1.0", "end")
-
-        for effect in effect_objects:
-            effect.destroy()
 
         for section_name in section_keys:
             section = game_sections[section_name]
             button = section.create_button(self._effect_box)
-
             self._effect_box.window_create("end", window=button)
             self._effect_box.insert("end", "\n  ")
-            effect_objects.append(button)
 
-            for effect_name in section.option_vars:
-                option_var = section.option_vars[effect_name]
+            for effect_name, option_var in section.option_vars.items():
                 button = ttk.Checkbutton(
                     self._effect_box,
                     cursor="hand2",
@@ -390,7 +399,6 @@ class ServerGUI(ChaosTheme):
                 self._effect_box.insert("end", "  ")
                 self._effect_box.window_create("end", window=button)
                 self._effect_box.insert("end", "\n  ")
-                effect_objects.append(button)
 
             if section_name != section_keys[-1]:
                 self._effect_box.insert("end", "\n")

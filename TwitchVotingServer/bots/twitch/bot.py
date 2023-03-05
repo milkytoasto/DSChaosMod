@@ -3,7 +3,7 @@ import webbrowser
 
 import requests
 from bots.twitch import scopes
-from HTTPServer.UrlFragmentFetchServer import UrlFragmentFetchServer
+from http_server.url_fragment_fetch_server import UrlFragmentFetchServer
 from twitchio.ext import commands, pubsub
 
 

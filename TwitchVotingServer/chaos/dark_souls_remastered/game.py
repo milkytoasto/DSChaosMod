@@ -1,4 +1,4 @@
-from .Effects import *
+from .effects import *
 
 
 class DarkSoulsRemastered:

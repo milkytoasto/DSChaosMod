@@ -4,11 +4,11 @@ import os
 import random
 
 import psutil
-from ConfigHandler.ConfigHandler import ConfigHandler
+from config_handler.config_handler import ConfigHandler
 from pymem import Pymem, process
 from pymem.exception import ProcessNotFound
 
-from .DarkSoulsRemastered.Game import DarkSoulsRemastered
+from .dark_souls_remastered.game import DarkSoulsRemastered
 
 
 class NoProcessFoundError(Exception):
@@ -16,31 +16,31 @@ class NoProcessFoundError(Exception):
 
 
 class ChaosHandler:
-    def __init__(self, configHandler):
+    def __init__(self, config_handler):
         self.effect = asyncio.Event()
         self.game = None
         self.sampled_options = None
-        self.configHandler = configHandler
+        self.config_handler = config_handler
         self.debug_logger = logging.getLogger("debug")
 
     def load_config(self):
         self.available_effects = dict()
-        game_sections = self.configHandler.get_section("GAME_CONFIGS")
+        game_sections = self.config_handler.get_section("GAME_CONFIGS")
 
         for game_name in game_sections:
             config_path = os.path.join(
                 os.path.dirname(__file__),
-                f'../config/{self.configHandler.config["GAME_CONFIGS"][game_name]}',
+                f'../config/{self.config_handler.config["GAME_CONFIGS"][game_name]}',
             )
-            gameConfigHandler = ConfigHandler(config_path=config_path)
+            game_config_handler = ConfigHandler(config_path=config_path)
 
             self.available_effects[game_name] = dict()
 
-            for section_name in gameConfigHandler.config.sections():
-                section = gameConfigHandler.get_section(section_name)
+            for section_name in game_config_handler.config.sections():
+                section = game_config_handler.get_section(section_name)
 
                 for effect_name in section:
-                    effect_value = gameConfigHandler.config[section_name].getboolean(
+                    effect_value = game_config_handler.config[section_name].getboolean(
                         effect_name
                     )
                     self.available_effects[game_name][effect_name] = effect_value

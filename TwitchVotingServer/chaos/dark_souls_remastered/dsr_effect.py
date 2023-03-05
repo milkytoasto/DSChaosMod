@@ -1,5 +1,5 @@
-from ChaosHandler.DarkSoulsRemastered.Memory import BaseAddress, Pointer
-from ChaosHandler.Effect import BaseEffect
+from chaos.dark_souls_remastered.memory import BaseAddress, Pointer
+from chaos.effect import BaseEffect
 from pymem import memory
 
 
