@@ -97,6 +97,13 @@ class VotingHandler:
             self.current_effect = None
             self.chaosHandler.effect.clear()
 
+    async def integrate(self, callback):
+        try:
+            if self.bot is not None:
+                await self.bot.generate_access_token(callback)
+        finally:
+            callback()
+
     async def voting_controller(self):
         await self.enabled.wait()
 

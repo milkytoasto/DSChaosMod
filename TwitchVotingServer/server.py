@@ -10,9 +10,9 @@ from WebsocketHandler.WebsocketHandler import WebsocketHandler
 
 if __name__ == "__main__":
     http_server = UrlFragmentFetchServer()
-    ch = ConfigHandler(
-        config_path=os.path.join(os.path.dirname(__file__), f"config/config.ini")
-    )
+
+    config_path = os.path.join(os.path.dirname(__file__), f"config/config.ini")
+    ch = ConfigHandler(config_path=config_path)
     chaos = ChaosHandler(configHandler=ch)
     wsh = WebsocketHandler(port=7890)
     vh = VotingHandler(configHandler=ch, chaosHandler=chaos, websocketHandler=wsh)
@@ -21,7 +21,6 @@ if __name__ == "__main__":
         "Dark Souls Chaos Server",
         configHandler=ch,
         websocket_server=wsh.websocket_server,
-        http_server=http_server,
     )
     gui.init_commands(
         connect=vh.connect,
@@ -29,6 +28,7 @@ if __name__ == "__main__":
         start=vh.start,
         pause=vh.pause,
         stop=vh.stop,
+        integrate=vh.integrate,
     )
     gui.init_settings_tab(
         saveHandler=lambda: [vh.load_config()],

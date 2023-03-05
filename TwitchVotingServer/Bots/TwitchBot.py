@@ -1,6 +1,10 @@
 import random
+import webbrowser
 
-from twitchio.ext import commands
+import requests
+from Bots import scopes
+from HTTPServer.UrlFragmentFetchServer import UrlFragmentFetchServer
+from twitchio.ext import commands, pubsub
 
 
 class TwitchBot(commands.Bot):
@@ -12,13 +16,62 @@ class TwitchBot(commands.Bot):
         chat_logger,
         messageHandler=False,
     ):
+        self.channel = channel
+        self.votes = {}
+        self._fragment_fetch_server = UrlFragmentFetchServer()
         super().__init__(token=token, prefix="?", initial_channels=[channel])
         self.acceptingVotes = False
         self.messageHandler = messageHandler
         self.debug_logger = debug_logger
         self.chat_logger = chat_logger
-        self.channel = channel
-        self.votes = {}
+
+    async def subscribe(self, token):
+        self.pubsub = pubsub.PubSubPool(self)
+        channel = self.get_channel(self.channel)
+        user = await channel.user()
+        userId = user.id
+
+        topics = [
+            pubsub.channel_points(token)[userId],
+        ]
+
+        await self.pubsub.subscribe_topics(topics)
+
+    async def handle_access_token(self, callback, data):
+        access_token = data.get("access_token")
+
+        if access_token:
+            await self.subscribe(access_token)
+        print("Calling back")
+        callback()
+
+    async def generate_access_token(self, callback):
+        self._fragment_fetch_server.start(
+            lambda data: self.handle_access_token(callback, data)
+        )
+
+        server = "localhost"
+        port = 8080
+        redirect_uri = f"http://{server}:{port}"
+
+        params = {
+            "response_type": "token",
+            "client_id": "zbdsd2e5665sahh5ijoqjjxhg9e2x1",
+            "redirect_uri": redirect_uri,
+            "scope": scopes.Channel.Read.REDEMPTIONS,
+            "state": "c3ab8aa609ea11e793ae92361f002671",
+        }
+
+        url = "https://id.twitch.tv/oauth2/authorize"
+        request = requests.Request("GET", url, params).prepare()
+        request.prepare_url(url, params)
+        webbrowser.open(request.url, 2, True)
+
+    async def event_pubsub_channel_points(
+        self, event: pubsub.PubSubChannelPointsMessage
+    ):
+        print("Got Channel Points")
+        pass
 
     async def start(self):
         try:
