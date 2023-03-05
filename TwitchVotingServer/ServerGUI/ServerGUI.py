@@ -16,10 +16,9 @@ from .Theming.ChaosTheme import ChaosTheme
 
 
 class ServerGUI(ChaosTheme):
-    def __init__(self, title, configHandler, websocket_server, http_server):
+    def __init__(self, title, configHandler, websocket_server):
         super().__init__(title)
         self.configHandler = configHandler
-        self.http_server = http_server
         self.effect_store = CheckboxCollectionStore()
         self.__init_frames()
         self.__init_tabs()
@@ -53,6 +52,15 @@ class ServerGUI(ChaosTheme):
         self.startButton["state"] = "normal"
         self.pauseButton["state"] = "disabled"
         self.stopButton["state"] = "disabled"
+
+    def __integrate(self):
+        self.integrateButton["state"] = "disabled"
+        self.disconnectButton["state"] = "disabled"
+
+    def __http_server_closed(self):
+        self.integrateButton["state"] = "normal"
+        if str(self.connectButton["state"]) != "normal":
+            self.disconnectButton["state"] = "normal"
 
     def __init_frames(self):
         self.tabs_frame = tk.Frame(self.root, pady=4, padx=4)
@@ -112,7 +120,7 @@ class ServerGUI(ChaosTheme):
         await disconnect()
         self.root.destroy()
 
-    def init_commands(self, connect, disconnect, start, pause, stop):
+    def init_commands(self, connect, disconnect, start, pause, stop, integrate):
         self.connectButton = ttk.Button(
             self.connection_actions,
             text="Connect to Twitch",
@@ -142,11 +150,13 @@ class ServerGUI(ChaosTheme):
         self.stopButton = ttk.Button(
             self.voting_actions, text="Stop", command=lambda: [stop(), self.__stopped()]
         )
-
         self.integrateButton = ttk.Button(
             self.pubsub_actions,
             text="Integrate",
-            command=lambda: [self.http_server.start()],
+            command=lambda: [
+                self.__integrate(),
+                async_handler(integrate)(self.__http_server_closed),
+            ],
         )
 
         self.connectButton.grid(row=0, column=0, padx=4)
