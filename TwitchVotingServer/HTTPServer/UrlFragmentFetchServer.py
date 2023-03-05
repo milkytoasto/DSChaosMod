@@ -8,7 +8,7 @@ from urllib.parse import unquote, urlparse
 class UrlFragmentFetchServer:
     # Based on https://github.com/noskillsben/python-url-fragment-extractor/blob/main/urlfragmentfetchserver.py
 
-    def __init__(self, timeout=3, port=8080):
+    def __init__(self, timeout=20, port=8080):
         self._port = port
         self._keep_running = True
         self._connected = False
@@ -18,11 +18,11 @@ class UrlFragmentFetchServer:
         self.data = None
         self.debug_logger = logging.getLogger("debug")
 
-    def start(self):
+    def start(self, callback=None):
         """Starts listening on localhost until it times out or until it returns Url fragments in a dict."""
         self.debug_logger.info(f"Starting HTTP Server on port {self._port}.")
         self._keep_running = True
-        asyncio.ensure_future(self.__start_server())
+        asyncio.ensure_future(self.__start_server(callback))
         return self.data
 
     async def __time_out_shutdown(self):
@@ -36,7 +36,7 @@ class UrlFragmentFetchServer:
         await self._server.wait_closed()
         self.debug_logger.info(f"HTTP Server on port {self._port} closed.")
 
-    async def __start_server(self):
+    async def __start_server(self, callback):
         """Asyncio "main" async coroutine starts the server in server_forever mode"""
         server = await asyncio.start_server(
             client_connected_cb=self.__handle_connection,
@@ -51,6 +51,8 @@ class UrlFragmentFetchServer:
             await server.serve_forever()
         except asyncio.CancelledError:
             pass
+
+        await callback(self.data)
 
     def __get_html_block(self):
         html_file = open(
