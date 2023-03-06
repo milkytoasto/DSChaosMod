@@ -7,15 +7,15 @@ class WarpToBonfire(DSREffect):
     name = "Warp to Bonfire"
     config_alias = "warp_to_bonfire"
 
-    async def onStart(self, pm, module):
-        BaseB = BaseAddress.BaseB(pm, module)
-        HomewardCall = BaseAddress.HomewardCall(pm, module)
+    async def _on_start(self):
+        BaseB = BaseAddress.BaseB(self.pm, self.module)
+        HomewardCall = BaseAddress.HomewardCall(self.pm, self.module)
 
         shellcode = ShellCode.WarpShellcode(BaseB, HomewardCall)
 
-        BonFireTP = pm.allocate(128)
+        BonFireTP = self.pm.allocate(128)
         memory.write_bytes(
-            pm.process_handle, BonFireTP, bytes(shellcode), len(shellcode)
+            self.pm.process_handle, BonFireTP, bytes(shellcode), len(shellcode)
         )
-        pm.start_thread(BonFireTP)
-        pm.free(BonFireTP)
+        self.pm.start_thread(BonFireTP)
+        self.pm.free(BonFireTP)

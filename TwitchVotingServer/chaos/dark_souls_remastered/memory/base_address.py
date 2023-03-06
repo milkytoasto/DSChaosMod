@@ -1,6 +1,12 @@
 from pymem import pattern
 
 
+def _get_base_from_aob(pm, module, AOB):
+    GetBase = pattern.pattern_scan_module(pm.process_handle, module, AOB)
+    Base = GetBase + pm.read_int(GetBase + 3) + 7
+    return Base
+
+
 class AOBS:
     BaseA = rb"\x48\x89\x05....\x8D\x42"
     BaseB = rb"\x48\x8B\x05....\x45\x33\xED\x48\x8B\xF1\x48\x85\xC0"
@@ -18,48 +24,32 @@ class AOBS:
 
 
 class BaseAddress:
-    @classmethod
-    def get_aob(cls, pm, module, AOB):
-        GetBase = pattern.pattern_scan_module(pm.process_handle, module, AOB)
-        Base = GetBase + pm.read_int(GetBase + 3) + 7
-        return Base
+    def BaseA(pm, module):
+        return _get_base_from_aob(pm, module, AOBS.BaseA)
 
-    @classmethod
-    def BaseA(cls, pm, module):
-        return cls.get_aob(pm, module, AOBS.BaseA)
+    def BaseB(pm, module):
+        return _get_base_from_aob(pm, module, AOBS.BaseB)
 
-    @classmethod
-    def BaseB(cls, pm, module):
-        return cls.get_aob(pm, module, AOBS.BaseB)
+    def BaseC(pm, module):
+        return _get_base_from_aob(pm, module, AOBS.BaseC)
 
-    @classmethod
-    def BaseC(cls, pm, module):
-        return cls.get_aob(pm, module, AOBS.BaseC)
+    def BaseD(pm, module):
+        return _get_base_from_aob(pm, module, AOBS.BaseD)
 
-    @classmethod
-    def BaseD(cls, pm, module):
-        return cls.get_aob(pm, module, AOBS.BaseD)
+    def BaseE(pm, module):
+        return _get_base_from_aob(pm, module, AOBS.BaseE)
 
-    @classmethod
-    def BaseE(cls, pm, module):
-        return cls.get_aob(pm, module, AOBS.BaseE)
+    def BaseP(pm, module):
+        return _get_base_from_aob(pm, module, AOBS.BaseP)
 
-    @classmethod
-    def BaseP(cls, pm, module):
-        return cls.get_aob(pm, module, AOBS.BaseP)
+    def BaseX(pm, module):
+        return _get_base_from_aob(pm, module, AOBS.BaseX)
 
-    @classmethod
-    def BaseX(cls, pm, module):
-        return cls.get_aob(pm, module, AOBS.BaseX)
+    def BaseZ(pm, module):
+        return _get_base_from_aob(pm, module, AOBS.BaseZ)
 
-    @classmethod
-    def BaseZ(cls, pm, module):
-        return cls.get_aob(pm, module, AOBS.BaseZ)
+    def BaseCAR(pm, module):
+        return _get_base_from_aob(pm, module, AOBS.BaseCAR)
 
-    @classmethod
-    def BaseCAR(cls, pm, module):
-        return cls.get_aob(pm, module, AOBS.BaseCAR)
-
-    @classmethod
-    def HomewardCall(cls, pm, module):
+    def HomewardCall(pm, module):
         return pattern.pattern_scan_module(pm.process_handle, module, AOBS.HomewardCall)

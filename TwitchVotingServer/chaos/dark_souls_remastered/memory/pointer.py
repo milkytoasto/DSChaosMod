@@ -1,44 +1,58 @@
+def _get_pointer(pm, base, offsets=False):
+    addr = pm.read_ulonglong(base)
+
+    if not offsets:  # No offsets, return address
+        return addr
+
+    for i in offsets[:-1]:  # Loop over all but the last
+        addr = pm.read_ulonglong(addr + i)
+    return addr + offsets[-1]
+
+
 class PointerOffsets:
-    HUD = [0x58, 0x11]
-    DrawDistance = [0x60, 0x60, 0x5C]
-    Slide = [0x68, 0x68, 0x48, 0x45C]
-    PlayerHP = [0x68, 0x3E8]
-    PlayerHeadSize = [0x10, 0x388]
+    class Interface:
+        HUD = [0x58, 0x11]
+
+    class Settings:
+        DRAW_DISTANCE = [0x60, 0x60, 0x5C]
+
+    class Player:
+        class Stat:
+            HP = [0x68, 0x3E8]
+
+        class Body:
+            HEAD_SIZE = [0x10, 0x388]
+
+        class Animations:
+            SLIDE = [0x68, 0x68, 0x48, 0x45C]
+
+    class GameState:
+        IS_LOADING = [0x0, 0x850, 0x88, 0x10, 0x168, 0x2F8]
 
 
 class Pointer:
-    @classmethod
-    def get(cls, pm, base, offsets=False):
-        addr = pm.read_ulonglong(base)
+    class Interface:
+        def hud(pm, BaseB):
+            return _get_pointer(pm, BaseB, PointerOffsets.Interface.HUD)
 
-        if not offsets:  # No offsets, return address
-            return addr
+    class Settings:
+        def draw_distance(pm, BaseCAR):
+            return _get_pointer(pm, BaseCAR, PointerOffsets.Settings.DRAW_DISTANCE)
 
-        for i in offsets[:-1]:  # Loop over all but the last
-            addr = pm.read_ulonglong(addr + i)
-        return addr + offsets[-1]
+    class Player:
+        class Stat:
+            def hp(pm, BaseX):
+                return _get_pointer(pm, BaseX, PointerOffsets.Player.Stat.HP)
 
-    @classmethod
-    def HUD(cls, pm, BaseB):
-        return cls.get(pm, BaseB, PointerOffsets.HUD)
+        class Body:
+            def head_size(pm, BaseB):
+                return _get_pointer(pm, BaseB, PointerOffsets.Player.Body.HEAD_SIZE)
 
-    @classmethod
-    def DrawDistance(cls, pm, BaseCAR):
-        return cls.get(pm, BaseCAR, PointerOffsets.DrawDistance)
+        class Animations:
+            def slide(pm, BaseX):
+                return _get_pointer(pm, BaseX, PointerOffsets.Player.Animations.SLIDE)
 
-    @classmethod
-    def Slide(cls, pm, BaseX):
-        return cls.get(pm, BaseX, PointerOffsets.Slide)
-
-    @classmethod
-    def PlayerHP(cls, pm, BaseX):
-        return cls.get(pm, BaseX, PointerOffsets.PlayerHP)
-
-    @classmethod
-    def PlayerHeadSize(cls, pm, BaseB):
-        return cls.get(pm, BaseB, PointerOffsets.PlayerHeadSize)
-
-    @classmethod
-    def Loading(cls, pm, module):
-        base = module.lpBaseOfDll + 0x01D05270
-        return cls.get(pm, base, [0xF4])
+    class GameState:
+        def is_loading(pm, BaseA):
+            pointer = _get_pointer(pm, BaseA, PointerOffsets.GameState.IS_LOADING)
+            return pointer

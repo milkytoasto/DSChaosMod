@@ -7,15 +7,14 @@ class TinyHead(DSREffect):
     name = "Tiny Head Mode"
     config_alias = "tiny_head"
 
-    async def onStart(self, pm, module):
-        BaseB = BaseAddress.BaseB(pm, module)
-        HeadPointer = Pointer.PlayerHeadSize(pm, BaseB)
+    async def _set_head_size(self, size):
+        BaseB = BaseAddress.BaseB(self.pm, self.module)
+        head_pointer = Pointer.Player.Body.head_size(self.pm, BaseB)
+        memory.write_float(self.pm.process_handle, head_pointer, size)
 
-        memory.write_float(pm.process_handle, HeadPointer, -10)
-        await self.tick(self.seconds, pm, module)
+    async def _on_start(self):
+        await self._set_head_size(-10)
+        await self.tick(self.seconds)
 
-    async def onStop(self, pm, module):
-        BaseB = BaseAddress.BaseB(pm, module)
-        HeadPointer = Pointer.PlayerHeadSize(pm, BaseB)
-
-        memory.write_float(pm.process_handle, HeadPointer, 0)
+    async def _on_stop(self):
+        await self._set_head_size(0)

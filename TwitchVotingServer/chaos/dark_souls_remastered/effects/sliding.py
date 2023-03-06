@@ -7,11 +7,10 @@ class Sliding(DSREffect):
     name = "Sliding"
     config_alias = "sliding"
 
-    async def onStart(self, pm, module):
-        BaseX = BaseAddress.BaseX(pm, module)
-        SlidePointer = Pointer.Slide(pm, BaseX)
+    async def _on_start(self):
+        BaseX = BaseAddress.BaseX(self.pm, self.module)
+        slide_pointer = Pointer.Player.Animations.slide(self.pm, BaseX)
+        await self.tick(self.seconds, slide_pointer)
 
-        await self.tick(self.seconds, pm, SlidePointer)
-
-    async def onTick(self, pm, SlidePointer):
-        memory.write_bytes(pm.process_handle, SlidePointer, b"\x01", 1)
+    async def _on_tick(self, slide_pointer):
+        memory.write_bytes(self.pm.process_handle, slide_pointer, b"\x01", 1)

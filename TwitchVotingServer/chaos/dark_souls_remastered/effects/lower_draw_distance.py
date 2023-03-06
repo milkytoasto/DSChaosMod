@@ -7,15 +7,15 @@ class LowerDrawDistance(DSREffect):
     name = "Lower Draw Distance"
     config_alias = "lower_draw_distance"
 
-    async def onStart(self, pm, module):
-        BaseCAR = BaseAddress.BaseCAR(pm, module)
-        DrawDistancePointer = Pointer.DrawDistance(pm, BaseCAR)
+    async def _on_start(self):
+        BaseCAR = BaseAddress.BaseCAR(self.pm, self.module)
+        draw_distance_pointer = Pointer.Settings.draw_distance(self.pm, BaseCAR)
 
-        memory.write_float(pm.process_handle, DrawDistancePointer, 10)
-        await self.tick(self.seconds, pm, module)
+        memory.write_float(self.pm.process_handle, draw_distance_pointer, 10)
+        await self.tick(self.seconds)
 
-    async def onStop(self, pm, module):
-        BaseCAR = BaseAddress.BaseCAR(pm, module)
-        DrawDistancePointer = Pointer.DrawDistance(pm, BaseCAR)
+    async def _on_stop(self):
+        BaseCAR = BaseAddress.BaseCAR(self.pm, self.module)
+        draw_distance_pointer = Pointer.Settings.draw_distance(self.pm, BaseCAR)
 
-        memory.write_float(pm.process_handle, DrawDistancePointer, 3100)
+        memory.write_float(self.pm.process_handle, draw_distance_pointer, 3100)

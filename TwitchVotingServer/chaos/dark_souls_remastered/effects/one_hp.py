@@ -7,9 +7,9 @@ class OneHP(DSREffect):
     name = "1 HP"
     config_alias = "one_hp"
 
-    async def onStart(self, pm, module):
-        BaseX = BaseAddress.BaseX(pm, module)
-        HealthPointer = Pointer.PlayerHP(pm, BaseX)
+    async def _on_start(self):
+        BaseX = BaseAddress.BaseX(self.pm, self.module)
+        player_hp_pointer = Pointer.Player.Stat.hp(self.pm, BaseX)
         memory.write_bytes(
-            pm.process_handle, HealthPointer, (1).to_bytes(4, "little"), 4
+            self.pm.process_handle, player_hp_pointer, (1).to_bytes(4, "little"), 4
         )
