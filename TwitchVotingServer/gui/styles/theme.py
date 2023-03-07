@@ -6,30 +6,23 @@ from .colors import Colors
 
 class ChaosTheme:
     def __init__(self, title):
-        root = tk.Tk()
-        root.title(title)
-        root.grid_rowconfigure(1, weight=1)
-        root.grid_columnconfigure(0, weight=1)
+        self.root = tk.Tk()
+        self.root.title(title)
+        self.root.grid_rowconfigure(1, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
 
         width = 800
         height = 600
 
-        root.geometry(f"{width}x{height}")
-        root.minsize(width, height)
+        self.root.geometry(f"{width}x{height}")
+        self.root.minsize(width, height)
 
-        root.tk_setPalette(
+        self.root.tk_setPalette(
             background=Colors.BACKGROUND,
             foreground=Colors.BACKGROUND_TEXT,
             highlightColor=Colors.PRIMARY,
         )
-
-        self.root = root
-
-        self.__configure_style()
-
-    def __configure_style(self):
         self.root.option_add("*font", "segoe-ui 12 bold")
-
         self.s = ttk.Style()
         self.s.theme_use("clam")
         self.s.configure(
@@ -49,6 +42,17 @@ class ChaosTheme:
             borderwidth=0,
         )
 
+        self._configure_entry()
+        self._configure_button()
+        self._configure_combobox()
+        self._configure_checkbutton()
+        self._configure_frame()
+        self._configure_labelframe()
+        self._configure_label()
+        self._configure_scrollbar()
+        self._configure_notebook()
+
+    def _configure_entry(self):
         self.s.layout(
             "TEntry",
             [
@@ -83,13 +87,13 @@ class ChaosTheme:
                 )
             ],
         )
-
         self.s.map(
             "TEntry",
             selectbackground=[("!focus", Colors.BACKGROUND)],
             selectforeground=[("!focus", Colors.BACKGROUND_TEXT)],
         )
 
+    def _configure_button(self):
         self.s.configure(
             "TButton",
             background=Colors.PRIMARY,
@@ -104,19 +108,28 @@ class ChaosTheme:
             ],
         )
 
+    def _configure_combobox(self):
+        self.root.option_add(
+            "*TCombobox*Listbox.selectBackground", Colors.PRIMARY_HOVER
+        )
+        self.root.option_add("*TCombobox*Listbox.selectForeground", Colors.BACKGROUND)
         self.s.configure(
             "TCombobox",
-            arrowsize=1,
+            arrowsize=20,
             bordercolor=Colors.PRIMARY,
             borderwidth=5,
         )
         self.s.map(
             "TCombobox",
+            selectbackground=[("readonly", Colors.BACKGROUND)],
+            selectforeground=[("readonly", Colors.BACKGROUND_TEXT)],
             fieldbackground=[("readonly", Colors.BACKGROUND)],
-            selectbackground=[("readonly", "")],
-            selectforeground=[("readonly", Colors.PRIMARY_TEXT)],
+            background=[
+                ("readonly", Colors.PRIMARY),
+            ],
         )
 
+    def _configure_checkbutton(self):
         self.s.configure(
             "TCheckbutton",
         )
@@ -129,12 +142,14 @@ class ChaosTheme:
             ],
         )
 
+    def _configure_frame(self):
         self.s.configure(
             "TFrame",
             background=Colors.SECONDARY,
             foreground=Colors.SECONDARY_TEXT,
         )
 
+    def _configure_labelframe(self):
         self.s.configure(
             "TLabelframe",
             labeloutside=False,
@@ -143,10 +158,12 @@ class ChaosTheme:
             "TLabelframe.Label",
         )
 
+    def _configure_label(self):
         self.s.configure(
             "TLabel", background=Colors.SECONDARY, foreground=Colors.SECONDARY_TEXT
         )
 
+    def _configure_scrollbar(self):
         self.s.layout(
             "Vertical.TScrollbar",
             [
@@ -165,8 +182,7 @@ class ChaosTheme:
             background=[("active", Colors.PRIMARY), ("disabled", Colors.PRIMARY)],
         )
 
-        self.s.configure("TNotebook", tabmargins=[2, 5, 0, 0])
-
+    def _configure_notebook(self):
         self.s.configure(
             "TNotebook.Tab",
             background=Colors.SECONDARY,
