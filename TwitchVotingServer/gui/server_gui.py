@@ -55,6 +55,7 @@ class ServerGUI(ChaosTheme):
         self._connect_button["state"] = "disabled"
         self._disconnect_button["state"] = "normal"
         self._start_button["state"] = "normal"
+        self._integrate_button["state"] = "normal"
 
     def _disconnected(self):
         self._connect_button["state"] = "normal"
@@ -62,6 +63,7 @@ class ServerGUI(ChaosTheme):
         self._start_button["state"] = "disabled"
         self._pause_button["state"] = "disabled"
         self._stop_button["state"] = "disabled"
+        self._integrate_button["state"] = "disabled"
 
     def _started(self):
         self._start_button["state"] = "disabled"
