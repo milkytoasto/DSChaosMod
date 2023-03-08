@@ -1,6 +1,8 @@
 import logging
 import tkinter as tk
 
+from gui.styles.colors import DarkColors, LightColors
+
 
 class WidgetLogger(logging.Handler):
     """
@@ -10,7 +12,7 @@ class WidgetLogger(logging.Handler):
     https://stackoverflow.com/questions/13318742/python-logging-to-tkinter-text-widget
     """
 
-    def __init__(self, widget, level=logging.INFO):
+    def __init__(self, widget, level=logging.INFO, theme="dark"):
         logging.Handler.__init__(self)
         self.setLevel(level)
         self.setFormatter(
@@ -18,12 +20,33 @@ class WidgetLogger(logging.Handler):
         )
         self.widget = widget
         self.widget.config(state="disabled")
-        self.widget.tag_config("INFO", foreground="white")
-        self.widget.tag_config("DEBUG", foreground="white", background="grey")
-        self.widget.tag_config("WARNING", foreground="orange")
-        self.widget.tag_config("ERROR", foreground="red")
-        self.widget.tag_config("CRITICAL", foreground="red", underline=1)
-        self.red = self.widget.tag_configure("red", foreground="red")
+        self.theme = theme
+        self._set_colors()
+        self._configure_style()
+
+    def toggle_theme(self):
+        if self.theme == "dark":
+            self.theme = "light"
+        else:
+            self.theme = "dark"
+
+        self._set_colors()
+        self._configure_style()
+
+    def _set_colors(self):
+        if self.theme == "dark":
+            self.colors = DarkColors
+        else:
+            self.colors = LightColors
+
+    def _configure_style(self):
+        self.widget.tag_config("INFO", foreground=self.colors.Logging.INFO_TEXT)
+        self.widget.tag_config("DEBUG", foreground=self.colors.Logging.DEBUG_TEXT)
+        self.widget.tag_config("WARNING", foreground=self.colors.Logging.WARNING_TEXT)
+        self.widget.tag_config("ERROR", foreground=self.colors.Logging.ERROR_TEXT)
+        self.widget.tag_config(
+            "CRITICAL", foreground=self.colors.Logging.CRITICAL_TEXT, underline=1
+        )
 
     def emit(self, record):
         self.widget.config(state="normal")
