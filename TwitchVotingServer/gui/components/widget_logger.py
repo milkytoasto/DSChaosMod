@@ -1,5 +1,6 @@
 import logging
 import tkinter as tk
+import tkinter.ttk as ttk
 
 from gui.styles.colors import DarkColors, LightColors
 
@@ -12,13 +13,27 @@ class WidgetLogger(logging.Handler):
     https://stackoverflow.com/questions/13318742/python-logging-to-tkinter-text-widget
     """
 
-    def __init__(self, widget, level=logging.INFO, theme="dark"):
+    def __init__(self, parent, name, level=logging.INFO, theme="dark"):
         logging.Handler.__init__(self)
+
+        log_format = "[%(asctime)s]: %(message)s"
+        date_format = "%d-%b-%y %H:%M:%S"
+
+        logging.basicConfig(level=level)
         self.setLevel(level)
-        self.setFormatter(
-            logging.Formatter("[%(asctime)s]: %(message)s", datefmt="%d-%b-%y %H:%M:%S")
+        self.setFormatter(logging.Formatter(log_format, datefmt=date_format))
+
+        scrollbar = ttk.Scrollbar(parent, orient="vertical")
+        scrollbar.pack(side=tk.RIGHT, fill=tk.BOTH)
+
+        text = tk.Text(
+            parent, width=15, height=15, wrap="none", yscrollcommand=scrollbar.set
         )
-        self.widget = widget
+        text.pack(side=tk.LEFT, fill=tk.BOTH, expand="true")
+        logger = logging.getLogger(name)
+        logger.addHandler(self)
+
+        self.widget = text
         self.widget.config(state="disabled")
         self.theme = theme
         self._set_colors()
