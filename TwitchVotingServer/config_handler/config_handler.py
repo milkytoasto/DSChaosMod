@@ -18,6 +18,10 @@ class ConfigHandler:
         with open(self.config_path, "w") as configfile:
             self.config.write(configfile)
 
+    def save(self):
+        with open(self.config_path, "w") as configfile:
+            self.config.write(configfile)
+
     def get_section(self, section):
         if section in self.config:
             return self.config[section]
