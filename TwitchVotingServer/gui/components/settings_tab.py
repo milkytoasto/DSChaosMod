@@ -31,7 +31,6 @@ class SettingsTab(ttk.Frame):
         self.save_button["state"] = "disabled"
         self.twitch_settings.save()
         self.voting_settings.save()
-        self._config_handler.save()
         self._voting_handler.load_config()
         self.save_button["state"] = "normal"
 
@@ -61,12 +60,13 @@ class VotingSettings(ttk.Frame):
         self.effect_duration_field.grid(row=1, column=0, padx=8, pady=8, sticky="ne")
 
     def save(self):
-        self.config_handler.config["VOTING"][
-            "VOTING_DURATION"
-        ] = self.voting_duration_field.get()
-        self.config_handler.config["VOTING"][
-            "EFFECT_DURATION"
-        ] = self.effect_duration_field.get()
+        fields = {
+            "VOTING": {
+                "VOTING_DURATION": self.voting_duration_field,
+                "EFFECT_DDURATION": self.effect_duration_field,
+            }
+        }
+        self.config_handler.save_config(fields)
 
 
 class TwitchSettings(ttk.Frame):
@@ -93,8 +93,10 @@ class TwitchSettings(ttk.Frame):
         self.tmi_token_field.grid(row=1, column=0, padx=8, pady=8, sticky="ne")
 
     def save(self):
-        self.config_handler.config["TWITCH"]["CHANNEL"] = self.channel_field.get()
-        self.config_handler.config["TWITCH"]["TMI_TOKEN"] = self.tmi_token_field.get()
+        fields = {
+            "TWITCH": {"CHANNEL": self.channel_field, "TMI_TOKEN": self.tmi_token_field}
+        }
+        self.config_handler.save_config(fields)
 
 
 class SettingsField(ttk.Frame):
