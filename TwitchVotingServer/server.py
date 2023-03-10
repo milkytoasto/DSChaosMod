@@ -13,21 +13,11 @@ if __name__ == "__main__":
     chaos = ChaosHandler(config_handler=ch)
     wsh = WebsocketHandler(port=7890)
     vh = VotingHandler(config_handler=ch, chaos_handler=chaos, websocket_handler=wsh)
-
     gui = ServerGUI(
         "Dark Souls Chaos Server",
         config_handler=ch,
         voting_handler=vh,
         websocket_server=wsh.websocket_server,
+        chaos_handler=chaos,
     )
-    gui.init_settings_tab(
-        tmi_token=ch.get_option("TWITCH", "TMI_TOKEN", "", type=str),
-        channel=ch.get_option("TWITCH", "CHANNEL", "", type=str),
-        voting_duration=vh.voting_duration,
-        effect_duration=vh.effect_duration,
-    )
-    gui.init_effects_tab(
-        save_handler=lambda: [chaos.load_config()],
-    )
-
     async_mainloop(gui.root)

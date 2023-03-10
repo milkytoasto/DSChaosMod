@@ -29,7 +29,7 @@ class ChaosTheme:
     def stay_on_top(self, value=True):
         self.root.attributes("-topmost", value)
 
-    def toggle_theme(self):
+    def _toggle_theme(self):
         if self.theme == "dark":
             self.theme = "light"
         else:

@@ -5,9 +5,9 @@ class ConfigHandler:
     def __init__(self, config_path):
         self.config_path = config_path
 
-        config = configparser.ConfigParser()
-        config.read(self.config_path)
-        self.config = config
+        with open(self.config_path) as f:
+            self.config = configparser.ConfigParser()
+            self.config.read_file(f)
 
     def save_config(self, fields):
         for section in fields:
@@ -19,8 +19,7 @@ class ConfigHandler:
             self.config.write(configfile)
 
     def get_section(self, section):
-        if section in self.config:
-            return self.config[section]
+        return self.config[section] if section in self.config else None
 
     def get_option(self, section, option, default_value, type=str):
         if self.config.has_option(section, option):
