@@ -24,3 +24,7 @@ jobs:
       - name: Run pre-commit
         run: |
           pipenv run pre-commit run -a
+      - name: Run unittests
+        run: |
+          pipenv run python -m unittest discover -t . -s tests -p "test_*.py"
+
