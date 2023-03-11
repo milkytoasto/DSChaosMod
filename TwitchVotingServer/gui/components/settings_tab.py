@@ -63,7 +63,7 @@ class VotingSettings(ttk.Frame):
         fields = {
             "VOTING": {
                 "VOTING_DURATION": self.voting_duration_field,
-                "EFFECT_DDURATION": self.effect_duration_field,
+                "EFFECT_DURATION": self.effect_duration_field,
             }
         }
         self.config_handler.save_config(fields)
