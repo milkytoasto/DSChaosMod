@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "dschaosmod"
+version = "0.1.0"
+description = "Twitch integration for Dark Souls."
+authors = ["MILKYTOASTO"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+websockets = ">=10.3"
+async-tkinter-loop = ">=0.6.0"
+twitchio = ">=2.5.0"
+pymem = ">=1.8.3"
+psutil = "*"
+requests = "^2.28.2"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
