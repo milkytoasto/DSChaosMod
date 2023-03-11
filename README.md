@@ -10,10 +10,10 @@ Visit the [Wiki](https://github.com/milkytoasto/DSChaosMod/wiki) for specific de
 
 1. Clone the repository using `git clone https://github.com/milkytoasto/DSChaosMod.git`
 2. Go into the project root directory with `cd DSChaosMod`
-3. `python -m pip install pipenv` to get the pipenv dependency
-4. `pipenv install --dev` to get both base and dev dependencies
-5. `pipenv run pre-commit install` to install the pre-commit hooks
-6. (Optional) `pipenv run pre-commit run -a` to run the pre-commit hooks. This will make sure they are operating as expected.
+3. `pip install poetry` to get the Poetry dependency
+4. `poetry install` to get both base and dev dependencies
+5. `poetry run pre-commit install` to install the pre-commit hooks
+6. `poetry run pre-commit run -a` to run the pre-commit hooks. This will make sure they are operating as expected.
 
 And that should be all you need to get started on development. There is more planned with the mod as it is still in the early stages, so this is subject to change.
 
