@@ -1,6 +1,5 @@
 import unittest
 import tkinter as tk
-import tkinter.ttk as ttk
 from TwitchVotingServer.gui.components.settings_tab import SettingsField 
 
 class TestSettingsField(unittest.TestCase):
