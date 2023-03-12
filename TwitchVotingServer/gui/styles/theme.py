@@ -24,9 +24,8 @@ class ChaosTheme:
         self.theme = theme
         self._set_colors()
         self._configure_style()
-        self.stay_on_top(True)
 
-    def stay_on_top(self, value=True):
+    def toggle_stay_on_top(self, value=True):
         self.root.attributes("-topmost", value)
 
     def _toggle_theme(self):
@@ -76,6 +75,7 @@ class ChaosTheme:
         self._configure_label()
         self._configure_scrollbar()
         self._configure_notebook()
+        self._configure_toggle_button()
 
     def _configure_entry(self):
         self.s.layout(
@@ -130,6 +130,32 @@ class ChaosTheme:
                 ("selected", self.colors.PRIMARY),
                 ("active", self.colors.PRIMARY_DARK),
                 ("disabled", self.colors.DISABLED),
+            ],
+        )
+
+    def _configure_toggle_button(self):
+        self.s.configure(
+            "ToggleButton.On.TButton",
+            foreground=self.colors.PRIMARY_TEXT,
+            background=self.colors.PRIMARY,
+            relief="raised",
+        )
+        self.s.map(
+            "ToggleButton.On.TButton",
+            background=[
+                ("active", self.colors.PRIMARY_DARK),
+            ],
+        )
+        self.s.configure(
+            "ToggleButton.Off.TButton",
+            foreground=self.colors.SURFACE_TEXT,
+            background=self.colors.SURFACE,
+            relief="sunken",
+        )
+        self.s.map(
+            "ToggleButton.Off.TButton",
+            background=[
+                ("active", self.colors.DISABLED),
             ],
         )
 
