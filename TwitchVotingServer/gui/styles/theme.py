@@ -25,8 +25,11 @@ class ChaosTheme:
         self._set_colors()
         self._configure_style()
 
-    def toggle_stay_on_top(self, value=True):
-        self.root.attributes("-topmost", value)
+    def toggle_stay_on_top(self):
+        if self.root.winfo_toplevel().attributes("-topmost"):
+            self.root.attributes("-topmost", False)
+        else:
+            self.root.attributes("-topmost", True)
 
     def _toggle_theme(self):
         if self.theme == "dark":
