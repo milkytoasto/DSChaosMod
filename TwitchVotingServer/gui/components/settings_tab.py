@@ -145,6 +145,7 @@ class TwitchSettings(ttk.Frame):
             self,
             "Oauth Token",
             self.config_handler.get_option("TWITCH", "TMI_TOKEN", "", type=str),
+            show="*",
         )
 
         self.columnconfigure(1, weight=1)
@@ -170,7 +171,7 @@ class TwitchSettings(ttk.Frame):
 
 
 class SettingsField(ttk.Frame):
-    def __init__(self, parent, label_text, value=""):
+    def __init__(self, parent, label_text, value="", show=""):
         super().__init__(parent)
         self.parent = parent
         self.variable = tk.StringVar(self, value=value)
@@ -178,7 +179,7 @@ class SettingsField(ttk.Frame):
         self.initial_value = value  # Store the initial value
 
         self.label = ttk.Label(self, text=label_text)
-        self.field = ttk.Entry(self, textvariable=self.variable)
+        self.field = ttk.Entry(self, textvariable=self.variable, show=show)
         self.field.bind("<KeyRelease>", self.on_key_release)
 
         self.label.grid(row=1, column=0, padx=8, pady=8, sticky="e")
