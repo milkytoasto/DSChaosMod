@@ -3,17 +3,22 @@ import tkinter.ttk as ttk
 
 
 class SettingsTab(ttk.Frame):
-    def __init__(self, parent, config_handler, voting_handler):
+    def __init__(
+        self, parent, config_handler, voting_handler, toggle_theme, toggle_stay_on_top
+    ):
         super().__init__(parent)
         self._voting_handler = voting_handler
         self._config_handler = config_handler
+        self._toggle_theme = toggle_theme
+        self._toggle_stay_on_top = toggle_stay_on_top
+
         self._settings_field_values = {}
         self._init_settings_tab()
 
     def _init_settings_tab(self):
         self.twitch_settings = TwitchSettings(self, self._config_handler)
         self.voting_settings = VotingSettings(self, self._config_handler)
-
+        self.app_settings_frame = ttk.Frame(self)
         self.save_button_frame = ttk.Frame(self)
         self.save_button_frame.grid(row=1, column=1, sticky="se", padx=8, pady=8)
 
@@ -26,14 +31,35 @@ class SettingsTab(ttk.Frame):
             self, text="You have unsaved changes.", foreground="red"
         )
 
+        self.toggle_stay_on_top_button = ttk.Button(
+            self.app_settings_frame,
+            style="ToggleButton.On.TButton",
+            text="Stay On Top",
+            command=self.handle_stay_on_top,
+        )
+        self.toggle_stay_on_top_button.grid(row=0, column=0, sticky="e", padx=8, pady=8)
+
+        self.toggle_theme_button = ttk.Button(
+            self.app_settings_frame, text="Toggle Theme", command=self._toggle_theme
+        )
+        self.toggle_theme_button.grid(row=0, column=1, sticky="e", padx=8, pady=8)
+
         self.twitch_settings.grid(row=0, column=0, sticky="ew", padx=8, pady=8)
         self.voting_settings.grid(row=0, column=1, sticky="ew", padx=8, pady=8)
-        self.save_button_frame.grid(row=1, column=1, sticky="se", padx=8, pady=8)
+        self.app_settings_frame.grid(row=1, column=1, sticky="ne", padx=8, pady=8)
+        self.save_button_frame.grid(row=2, column=1, sticky="se", padx=8, pady=8)
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=0)
         self.rowconfigure(1, weight=1)
+
+    def handle_stay_on_top(self):
+        self._toggle_stay_on_top()
+        if self.toggle_stay_on_top_button["style"] == "ToggleButton.On.TButton":
+            self.toggle_stay_on_top_button["style"] = "ToggleButton.Off.TButton"
+        else:
+            self.toggle_stay_on_top_button["style"] = "ToggleButton.On.TButton"
 
     def _field_changed(self):
         for settings_field in (
