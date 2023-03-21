@@ -73,12 +73,11 @@ class ServerGUI(ChaosTheme):
             config_handler=self._config_handler,
             voting_handler=self._voting_handler,
         )
+
         self._effects_tab = EffectsTab(
-            tab_control,
+            master=tab_control,
             config_path=self._config_path,
-            config_handler=self._config_handler,
-            voting_handler=self._voting_handler,
-            save_handler=lambda: [self._chaos_handler.load_config()],
+            save_handler=self._chaos_handler.load_config,
         )
 
         tab_control.add(debug_tab, text="Debugging")
