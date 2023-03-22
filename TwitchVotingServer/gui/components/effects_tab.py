@@ -9,6 +9,7 @@ class EffectsTab(ttk.Frame):
     def __init__(self, master=None, config_path="", save_handler=None, **kwargs):
         super().__init__(master, **kwargs)
         self._config_path = config_path
+        self._save_handler = save_handler
 
         self.master_config_file = os.path.join(
             os.path.dirname(config_path), "config.toml"
@@ -125,6 +126,7 @@ class EffectsTab(ttk.Frame):
 
         with open(self.config_file, "w") as f:
             toml.dump(self.config, f)
+        self._save_handler()
 
     def update_channel_point_alias(self, event):
         item = self.tree.selection()[0]
@@ -173,15 +175,6 @@ class EffectsTab(ttk.Frame):
             self.channel_point_alias_entry.delete(0, tk.END)
             self.channel_point_alias_label.grid_remove()
             self.channel_point_alias_entry.grid_remove()
-
-    def save_config(self):
-        for section in self.config:
-            for key in self.config[section]:
-                item = self.tree.item(key)
-                self.config[section][key]["enabled"] = item["values"][0]
-                self.config[section][key]["channel_point_alias"] = item["values"][1]
-        with open(self.config_file, "w") as f:
-            toml.dump(self.config, f)
 
     def refresh_treeview_values(self, section, key):
         values = self.config[section][key]
