@@ -72,6 +72,8 @@ class ServerGUI(ChaosTheme):
             tab_control,
             config_handler=self._config_handler,
             voting_handler=self._voting_handler,
+            toggle_theme=self._toggle_theme,
+            toggle_stay_on_top=self.toggle_stay_on_top,
         )
         self._effects_tab = EffectsTab(
             tab_control,
