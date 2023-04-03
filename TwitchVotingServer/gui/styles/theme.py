@@ -76,6 +76,29 @@ class ChaosTheme:
         self._configure_label()
         self._configure_scrollbar()
         self._configure_notebook()
+        self._configure_treeview()
+
+    def _configure_treeview(self):
+        self.s.configure(
+            "Treeview",
+            background=self.colors.BACKGROUND,
+            foreground=self.colors.BACKGROUND_TEXT,
+            fieldbackground=self.colors.BACKGROUND,
+            bordercolor=self.colors.BORDER,
+            borderwidth=0,
+            highlightthickness=0,
+            highlightbackground=self.colors.BACKGROUND,
+            highlightcolor=self.colors.BACKGROUND,
+        )
+        self.s.map(
+            "Treeview",
+            background=[("selected", self.colors.PRIMARY)],
+            foreground=[("selected", self.colors.PRIMARY_TEXT)],
+            selectbackground=[("selected", self.colors.PRIMARY)],
+            selectforeground=[("selected", self.colors.PRIMARY_TEXT)],
+        )
+        self.s.configure("Treeview.Heading", background=self.colors.BACKGROUND)
+        self.s.map("Treeview.Heading", background=[("active", self.colors.BACKGROUND)])
 
     def _configure_entry(self):
         self.s.layout(
