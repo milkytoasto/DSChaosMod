@@ -7,8 +7,8 @@ class BaseEffect:
 
     def __init__(self, seconds, pm=None, module=None):
         self.running = False
-        self.seconds = seconds
-        self.remaining_seconds = seconds
+        self.seconds = int(seconds)
+        self.remaining_seconds = int(seconds)
         self.pm = pm
         self.module = module
 
@@ -32,7 +32,7 @@ class BaseEffect:
         if seconds is None:
             seconds = self.seconds
 
-        self.remaining_seconds = seconds
+        self.remaining_seconds = int(seconds)
         while self.remaining_seconds > 0:
             if not self._is_loading():
                 if self.running:
