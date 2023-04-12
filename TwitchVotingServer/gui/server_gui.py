@@ -15,10 +15,14 @@ class ServerGUI(ChaosTheme):
     def __init__(
         self, title, config_handler, voting_handler, websocket_server, chaos_handler
     ):
-        super().__init__(title)
+        self._config_handler = config_handler
+        self.stay_on_top = config_handler.get_option(
+            "GUI", "STAY_ON_TOP", False, type=bool
+        )
+        self.theme = config_handler.get_option("GUI", "THEME", "dark", type=str)
+        super().__init__(title, theme=self.theme, stay_on_top=self.stay_on_top)
         self._config_path = os.path.join(os.path.dirname(__file__), f"../config/")
         self._chaos_handler = chaos_handler
-        self._config_handler = config_handler
         self._voting_handler = voting_handler
 
         # Main buttons
@@ -89,15 +93,18 @@ class ServerGUI(ChaosTheme):
         tab_control.add(self._effects_tab, text="Effects")
         tab_control.pack(expand=0, fill="both")
 
-        self.debug_logger = WidgetLogger(debug_tab, "debug")
-        self.chat_logger = WidgetLogger(chat_tab, "chat")
-        self.broadcast_logger = WidgetLogger(broadcast_tab, "broadcast")
+        self.debug_logger = WidgetLogger(debug_tab, "debug", theme=self.theme)
+        self.chat_logger = WidgetLogger(chat_tab, "chat", theme=self.theme)
+        self.broadcast_logger = WidgetLogger(
+            broadcast_tab, "broadcast", theme=self.theme
+        )
 
     def _toggle_theme(self):
         super()._toggle_theme()
         self.debug_logger.toggle_theme()
         self.chat_logger.toggle_theme()
         self.broadcast_logger.toggle_theme()
+        return self.theme
 
     async def _quit(self, disconnect):
         await disconnect()

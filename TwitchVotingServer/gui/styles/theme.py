@@ -5,7 +5,7 @@ from .colors import DarkColors, LightColors
 
 
 class ChaosTheme:
-    def __init__(self, title, theme="dark"):
+    def __init__(self, title, theme="dark", stay_on_top=False):
         self.root = tk.Tk()
         self.root.title(title)
         self.root.grid_rowconfigure(1, weight=1)
@@ -21,6 +21,8 @@ class ChaosTheme:
 
         self.s = ttk.Style()
         self.s.theme_use("clam")
+        if stay_on_top:
+            self.root.attributes("-topmost", True)
         self.theme = theme
         self._set_colors()
         self._configure_style()

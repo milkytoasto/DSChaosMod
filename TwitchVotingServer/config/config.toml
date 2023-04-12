@@ -2,12 +2,16 @@
 port = 7890
 
 [VOTING]
-VOTING_DURATION = "30"
-EFFECT_DURATION = "60"
+VOTING_DURATION = 60
+EFFECT_DURATION = 60
 
 [TWITCH]
 CHANNEL = ""
 TMI_TOKEN = ""
+
+[GUI]
+STAY_ON_TOP = true
+THEME = "dark"
 
 [GAME_CONFIGS]
 dark_souls_remastered = "game_effects/DSR.toml"

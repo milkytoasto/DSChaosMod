@@ -11,7 +11,7 @@ enabled = true
 channel_point_alias = ""
 
 [GUI_EFFECTS.disable_hud]
-enabled = false
+enabled = true
 channel_point_alias = ""
 
 [HEAD_EFFECTS.big_head]
@@ -19,7 +19,7 @@ enabled = false
 channel_point_alias = ""
 
 [HEAD_EFFECTS.tiny_head]
-enabled = false
+enabled = true
 channel_point_alias = ""
 
 [ACTION_EFFECTS.sliding]

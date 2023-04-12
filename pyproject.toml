@@ -17,6 +17,7 @@ toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "*"
+pytest = "^7.3.0"
 
 [build-system]
 requires = ["poetry-core"]

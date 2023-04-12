@@ -14,10 +14,7 @@ class ConfigHandler:
         new_config = self.config.copy()
         for section_name, section_fields in fields.items():
             for field_name, field_value in section_fields.items():
-                if isinstance(field_value, tk.BooleanVar):
-                    new_config[section_name][field_name] = bool(field_value.get() == 1)
-                else:
-                    new_config[section_name][field_name] = field_value.get()
+                new_config[section_name][field_name] = field_value
 
         with open(self.config_path, "w") as f:
             toml.dump(new_config, f)
