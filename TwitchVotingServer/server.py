@@ -8,7 +8,7 @@ from voting.voting_handler import VotingHandler
 from websocket.websocket_handler import WebsocketHandler
 
 if __name__ == "__main__":
-    config_path = os.path.join(os.path.dirname(__file__), f"config/config.ini")
+    config_path = os.path.join(os.path.dirname(__file__), f"config/config.toml")
     ch = ConfigHandler(config_path=config_path)
     chaos = ChaosHandler(config_handler=ch)
     wsh = WebsocketHandler(port=7890)

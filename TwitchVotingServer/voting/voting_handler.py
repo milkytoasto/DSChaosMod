@@ -123,7 +123,7 @@ class VotingHandler:
         self.effect_duration = self.config_handler.get_option(
             "VOTING", "EFFECT_DURATION", 120, type=int
         )
-        self.remaining_time = (
+        self.remaining_time = int(
             self.voting_duration if self.accepting_votes else self.effect_duration
         )
 
@@ -141,7 +141,7 @@ class VotingHandler:
                     )
 
                 self.accepting_votes = not self.accepting_votes
-                self.remaining_time = (
+                self.remaining_time = int(
                     self.voting_duration
                     if self.accepting_votes
                     else self.effect_duration

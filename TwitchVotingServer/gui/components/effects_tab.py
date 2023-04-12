@@ -2,139 +2,181 @@ import os
 import tkinter as tk
 import tkinter.ttk as ttk
 
-from config_handler.config_handler import ConfigHandler
-
-from .checkbox_collection import (
-    CheckboxCollectionStore,
-    CheckboxSectionStore,
-    CheckboxTreeStore,
-)
+import toml
 
 
 class EffectsTab(ttk.Frame):
-    def __init__(
-        self,
-        parent,
-        config_path,
-        config_handler,
-        voting_handler,
-        save_handler,
-        **kwargs,
-    ):
-        super().__init__(parent, **kwargs)
+    def __init__(self, master=None, config_path="", save_handler=None, **kwargs):
+        super().__init__(master, **kwargs)
         self._config_path = config_path
-        self._config_handler = config_handler
-        self._voting_handler = voting_handler
-        self._effect_store = CheckboxCollectionStore()
+        self._save_handler = save_handler
 
-        left = ttk.Frame(self)
-        right = ttk.Frame(self)
-
-        vsb = ttk.Scrollbar(left, orient="vertical")
-        effect_box = tk.Text(
-            left, cursor="arrow", width=40, height=20, yscrollcommand=vsb.set
+        self.master_config_file = os.path.join(
+            os.path.dirname(config_path), "config.toml"
         )
-        vsb.config(command=effect_box.yview)
-        effect_box.pack(side="left", fill="y")
-        vsb.pack(side="left", fill="y", anchor="w")
+        self.master_config = toml.load(self.master_config_file)
 
-        games = [key for key in self._config_handler.config["GAME_CONFIGS"]]
-        game_options = []
+        self.config_file = ""
+        self.config = None
 
-        for game_name in games:
-            game_store = self.create_game_store(game_name)
-            self._effect_store.add(game_name, game_store)
+        self.left_frame = ttk.Frame(self)
+        self.right_frame = ttk.Frame(self)
 
-        effect_box["state"] = "disabled"
-        self._effect_box = effect_box
-        self.selected_game = tk.StringVar()
-        self._options_menu = ttk.Combobox(
-            right,
+        self.vsb = ttk.Scrollbar(self.left_frame, orient="vertical")
+        self.tree = ttk.Treeview(
+            self.left_frame,
+            columns=("enabled", "channel_point_alias"),
+            selectmode="browse",
+            yscrollcommand=self.vsb.set,
+        )
+        self.vsb.config(command=self.tree.yview)
+        self.tree.pack(side="left", fill="both")
+        self.vsb.pack(side="left", fill="y", anchor="w")
+
+        self.tree.heading("#0", text="Key")
+        self.tree.heading("enabled", text="Enabled", anchor="center")
+        self.tree.heading(
+            "channel_point_alias", text="Channel Point Alias", anchor="center"
+        )
+        self.tree.column("#0", width=150, anchor="center")
+        self.tree.column("enabled", width=100, anchor="center")
+        self.tree.column("channel_point_alias", width=200, anchor="center")
+        self.tree.bind("<<TreeviewSelect>>", self.show_config)
+
+        self.actions = ttk.Frame(self.right_frame)
+
+        self._selected_game = tk.StringVar()
+        self.game_configs_dropdown = ttk.Combobox(
+            self.right_frame,
             state="readonly",
-            values=games,
-            textvariable=self.selected_game,
+            values=list(self.master_config["GAME_CONFIGS"].keys()),
+            textvariable=self._selected_game,
             width=50,
         )
-        self._options_menu.configure(cursor="target")
-        self._options_menu.pack(
-            side="top", anchor="n", fill="x", expand=True, padx=8, pady=8
+        self.game_configs_dropdown.pack(
+            side="top", anchor="n", fill="x", expand=False, padx=8, pady=8
         )
-        self._options_menu.bind(
-            "<<ComboboxSelected>>", lambda event: self._dropdown_select()
+        self.game_configs_dropdown.bind("<<ComboboxSelected>>", self.load_game)
+
+        # Pack the frames
+        s = ttk.Style()
+        self.actions.pack(side="top", fill="both", expand=True)
+        self.left_frame.pack(side="left", fill="both", expand=True)
+        self.right_frame.pack(side="right", fill="both", expand=True)
+
+    def load_game(self, event):
+        self.config_file = os.path.join(
+            os.path.dirname(self._config_path),
+            self.master_config["GAME_CONFIGS"][self._selected_game.get()],
         )
+        self.config = toml.load(self.config_file)
+        self.create_widgets()
 
-        self._save_settings = ttk.Button(
-            right,
-            text="Save Effects",
-            command=lambda: self._save_effects(save_handler),
-        ).pack(side="right", anchor="s", padx=8, pady=8)
+    def create_widgets(self):
+        self.tree.delete(*self.tree.get_children())
 
-        left.pack(side="left", fill="y")
-        right.pack(side="right", anchor="e", fill="both")
-
-        if len(game_options) > 0:
-            self.selected_game.set(game_options[0])
-            self._dropdown_select()
-
-    def create_game_store(self, game_name):
-        game_store = CheckboxTreeStore(game_name)
-        config_path = os.path.join(
-            self._config_path,
-            f'{self._config_handler.config["GAME_CONFIGS"][game_name]}',
-        )
-        game_config_handler = ConfigHandler(config_path=config_path)
-
-        for section_name in game_config_handler.config.sections():
-            section_store = CheckboxSectionStore(section_name)
-            section = game_config_handler.get_section(section_name)
-
-            for effect_name in section:
-                effect_value = game_config_handler.config[section_name].getboolean(
-                    effect_name
+        for section in self.config:
+            self.tree.insert("", "end", section, text=section)
+            for key in self.config[section]:
+                values = self.config[section][key]
+                self.tree.insert(
+                    section,
+                    "end",
+                    key,
+                    text=key,
+                    values=(
+                        values.get("enabled", ""),
+                        values.get("channel_point_alias", ""),
+                    ),
                 )
-                new_var = tk.BooleanVar(self, value=effect_value)
-                section_store.option_vars[effect_name] = new_var
-            section_store.create_section_var(self)
-            game_store.add(section_name, section_store)
-        return game_store
 
-    def _save_effects(self, save_handler):
-        game_configs = self._config_handler.config["GAME_CONFIGS"]
-        effect_store = self._effect_store.to_dict()
+        self.enabled_var = tk.BooleanVar()
+        self.enabled_label = ttk.Label(self.actions, text="Enabled:", anchor="ne")
+        self.enabled_cb = ttk.Checkbutton(
+            self.actions, variable=self.enabled_var, command=self.update_enabled
+        )
+        self.channel_point_alias_label = ttk.Label(
+            self.actions, text="Channel Point Alias:", anchor="ne"
+        )
+        self.channel_point_alias_entry = ttk.Entry(self.actions)
 
-        for game, config_file in game_configs.items():
-            config_path = os.path.join(self._config_path, f"{config_file}")
-            game_config_handler = ConfigHandler(config_path=config_path)
-            game_config_handler.save_config(effect_store[game])
+        self.channel_point_alias_entry.bind(
+            "<KeyRelease>", self.update_channel_point_alias
+        )
 
-        save_handler()
+    def update_enabled(self):
+        item = self.tree.selection()[0]
+        is_branch_node = bool(
+            self.tree.get_children(item)
+        )  # indicates if the node is a branch or leaf
 
-    def _dropdown_select(self):
-        game = self.selected_game.get()
-        game_sections = self._effect_store.trees[game].sections
-        section_keys = list(game_sections.keys())
+        if not is_branch_node:
+            section = self.tree.parent(item)
+            key = item
 
-        self._effect_box.config(state="normal")
-        self._effect_box.delete("1.0", "end")
+            self.config[section][key]["enabled"] = self.enabled_var.get()
+            self.tree.set(key, "enabled", str(self.enabled_var.get()))
+        else:
+            children = self.tree.get_children(item)
+            for child in children:
+                section = self.tree.parent(child)
+                key = child
+                self.config[section][key]["enabled"] = self.enabled_var.get()
+                self.tree.set(child, "enabled", str(self.enabled_var.get()))
 
-        for section_name in section_keys:
-            section = game_sections[section_name]
-            button = section.create_button(self._effect_box)
-            self._effect_box.window_create("end", window=button)
-            self._effect_box.insert("end", "\n  ")
+        with open(self.config_file, "w") as f:
+            toml.dump(self.config, f)
+        self._save_handler()
 
-            for effect_name, option_var in section.option_vars.items():
-                button = ttk.Checkbutton(
-                    self._effect_box,
-                    cursor="hand2",
-                    text=f"{effect_name.upper().replace('_', ' ')}",
-                    variable=option_var,
-                )
-                self._effect_box.insert("end", "  ")
-                self._effect_box.window_create("end", window=button)
-                self._effect_box.insert("end", "\n  ")
+    def update_channel_point_alias(self, event):
+        item = self.tree.selection()[0]
+        if self.tree.parent(item):
+            section = self.tree.parent(item)
+            key = item
 
-            if section_name != section_keys[-1]:
-                self._effect_box.insert("end", "\n")
+            self.config[section][key][
+                "channel_point_alias"
+            ] = self.channel_point_alias_entry.get()
+            with open(self.config_file, "w") as f:
+                toml.dump(self.config, f)
+            self.refresh_treeview_values(section, key)
 
-        self._effect_box.config(state="disabled")
+    def show_config(self, event):
+        item = self.tree.selection()[0]
+        self.enabled_label.grid(row=0, column=0, sticky="ne", padx=5, pady=5)
+        self.enabled_cb.grid(row=0, column=1, sticky="nw", padx=5, pady=5)
+
+        if self.tree.parent(item):
+            section = self.tree.parent(item)
+            key = item
+            values = self.config[section][key]
+            self.enabled_var.set(values.get("enabled", False))
+
+            self.channel_point_alias_entry.delete(0, tk.END)
+            self.channel_point_alias_entry.insert(
+                0, str(values.get("channel_point_alias", ""))
+            )
+            self.channel_point_alias_label.grid(
+                row=1, column=0, sticky="ne", padx=5, pady=5
+            )
+            self.channel_point_alias_entry.grid(
+                row=1, column=1, sticky="nw", padx=5, pady=5
+            )
+        else:
+            children = self.tree.get_children(item)
+
+            self.enabled_var.set(True)
+            for child in children:
+                section = self.tree.parent(child)
+                key = child
+                if not self.config[section][key]["enabled"]:
+                    self.enabled_var.set(False)
+                    break
+            self.channel_point_alias_entry.delete(0, tk.END)
+            self.channel_point_alias_label.grid_remove()
+            self.channel_point_alias_entry.grid_remove()
+
+    def refresh_treeview_values(self, section, key):
+        values = self.config[section][key]
+        self.tree.set(key, "enabled", str(values.get("enabled", False)))
+        self.tree.set(key, "channel_point_alias", values.get("channel_point_alias", ""))

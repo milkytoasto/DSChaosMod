@@ -13,9 +13,11 @@ twitchio = ">=2.5.0"
 pymem = ">=1.8.3"
 psutil = "*"
 requests = "^2.28.2"
+toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "*"
+pytest = "^7.3.0"
 
 [build-system]
 requires = ["poetry-core"]

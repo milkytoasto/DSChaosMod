@@ -37,19 +37,14 @@ class ChaosHandler:
         for game_name, game_config_path in self.config_handler.get_section(
             "GAME_CONFIGS"
         ).items():
-            game_effects = {}
+            game_config_file = os.path.join(
+                os.path.dirname(self.config_handler.config_path), f"{game_config_path}"
+            )
+            game_config = ConfigHandler(config_path=game_config_file)
 
-            for section in ConfigHandler(
-                config_path=os.path.join(
-                    os.path.dirname(__file__), f"../config/{game_config_path}"
-                )
-            ).config.values():
-                game_effects.update(
-                    {
-                        k: v if not isinstance(v, str) or v.lower() != "true" else True
-                        for k, v in section.items()
-                    }
-                )
+            game_effects = {}
+            for section in game_config.config.values():
+                game_effects.update({k: v for k, v in section.items()})
 
             self.available_effects[game_name] = game_effects
 
@@ -76,12 +71,12 @@ class ChaosHandler:
             effect_options = [
                 effect
                 for effect in self.game.effects
-                if game_configs.get(effect.config_alias.lower(), False) == True
+                if game_configs.get(effect.config_alias.lower(), False)["enabled"]
+                == True
             ]
 
         num_effects_to_sample = min(3, len(effect_options))
         self.sampled_options = random.sample(effect_options, k=num_effects_to_sample)
-
         return self.sampled_options
 
     def get_existing_options(self):
